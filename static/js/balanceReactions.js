@@ -1,4 +1,14 @@
-// TODO 
+// TODO
+
+console.log("start");
+$.getJSON("./static/json/reactions.json", function(data) {
+	console.log(data);
+}).done(function() {
+	// maybe run function for creating reaction?
+}).fail(function(d, textStatus,error) {
+	console.log(textStatus);
+	console.log(error);
+});
 
 var Reaction = function() {
 	this.elements = ["Mg", "O"];
@@ -174,7 +184,7 @@ Reaction.prototype.drawMolecule = function(molecule) {
 				molecule.composition.forEach(function(element,j) {
 					stroke(200);
 					fill(200);
-					ellipseTemp = ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);				
+					ellipseTemp = ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);
 				});
 			}
 			for (i=0; i < molecule.currentNumber; i++) {
@@ -217,7 +227,7 @@ Reaction.prototype.drawMolecule = function(molecule) {
 				ellipse(x + 25, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
 				fill(0);
 				text(molecule.composition[1], x + 5, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-				
+
 				// Top right atom
 				fill(127, 255, 255);
 				ellipse(x + 75, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
@@ -229,7 +239,7 @@ Reaction.prototype.drawMolecule = function(molecule) {
 				ellipse(x + 50, y + 50 + verticalShift, atomWidth/1.3, atomHeight/1.3);
 				fill(0);
 				text(molecule.composition[3], x + 35, y + 40 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-				
+
 				// Central atom
 				fill(255,127,80);
 				ellipse(x + 50, y + 20 + verticalShift, atomWidth, atomHeight);
