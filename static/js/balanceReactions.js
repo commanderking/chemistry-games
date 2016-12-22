@@ -109,6 +109,53 @@ var Reaction = function() {
 	this.correctRatio = [1,3,2];
 };
 
+// For now assign color based on the order the atom appears in reaction
+// TODO: In future, might want to change colors based on the exact element
+Reaction.prototype.assignAtomColor = function(index) {
+	switch(index){
+		case 0:
+			//orange
+			return [255,127,80];
+			break;
+		case 1:
+			//light blue
+			return [127, 255, 255];
+			break;
+		default:
+			break;
+	}
+}
+
+Reaction.prototype.mapColorScheme = function() {
+	// Generate color scheme for atoms
+	var colorSchemeArray = [];
+	this.elements.forEach(function(element, i) {
+
+		var colorScheme = {};
+		colorScheme["index"] = i;
+		colorScheme["element"] = element;
+		colorScheme["color"] = thisReaction.assignAtomColor(i);
+		colorSchemeArray.push(colorScheme);
+	});
+	this.colorScheme = colorSchemeArray;
+};
+
+Reaction.prototype.getColorArray = function(elementSymbol) {
+	var rgbArray;
+	console.log(elementSymbol);
+
+	if (this.colorSchemeArray) {
+		colorSchemeArray.forEach(function(colorSchemeObject) {
+			if (elementSymbol === colorSchemeObject.element) {
+				colorToReturn = colorSchemeObject.color;
+			}
+		});
+	} else {
+		rgbArray = [0,0,0];
+	}
+	return rgbArray;
+};
+
 // Draw atom or molecule
 Reaction.prototype.drawMolecule = function(molecule) {
 	if (molecule.active === true) {
@@ -133,6 +180,9 @@ Reaction.prototype.drawMolecule = function(molecule) {
 			for (i=0; i < molecule.currentNumber; i++) {
 				// draw one of the molecule
 				molecule.composition.forEach(function(element, j){
+					console.log(element);
+					var rgbArray = thisReaction.getColorArray(element);
+					console.log(rgbArray);
 					noStroke();
 					fill(255,127,80);
 					ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);
@@ -148,19 +198,22 @@ Reaction.prototype.drawMolecule = function(molecule) {
 			// Changes actual value in Reaction function
 		} else if (molecule.shape === "trigonal-pyrimidal") {
 			fill(200);
-			stroke(0);
+			stroke(200);
 			rect(x,y - 22, 100, windowHeight);
 			// First element in array is central atom
 			for (i=0; i<molecule.currentNumber; i++) {
+				// Defines how much each molecule should be separated from one below it
 				var verticalShift = i * yBuffer * 2;
 				noStroke();
 				textFont("Helvetica", 20, 30);
 				textAlign(CENTER, CENTER);
-				
-				fill(127, 255, 255);
-				// Assume surrounding atoms are smaller
 
+				// Define colors
+				console.log(this.colorScheme);
+
+				// Assume surrounding atoms are smaller
 				// Top left atom
+				fill(127, 255, 255);
 				ellipse(x + 25, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
 				fill(0);
 				text(molecule.composition[1], x + 5, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
@@ -171,7 +224,7 @@ Reaction.prototype.drawMolecule = function(molecule) {
 				fill(0);
 				text(molecule.composition[2], x + 60, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
 
-				// Bottom atm
+				// Bottom atom
 				fill(127, 255, 255);
 				ellipse(x + 50, y + 50 + verticalShift, atomWidth/1.3, atomHeight/1.3);
 				fill(0);
@@ -181,7 +234,7 @@ Reaction.prototype.drawMolecule = function(molecule) {
 				fill(255,127,80);
 				ellipse(x + 50, y + 20 + verticalShift, atomWidth, atomHeight);
 				fill(255);
-				text(molecule.composition[0], x + 28, y + verticalShift, atomWidth, atomHeight);
+				text(molecule.composition[0], x + 28, y - 4 + verticalShift, atomWidth, atomHeight);
 			}
 		}
 
@@ -191,6 +244,10 @@ Reaction.prototype.drawMolecule = function(molecule) {
 };
 
 var thisReaction = new Reaction();
+thisReaction.mapColorScheme();
+thisReaction.getColorArray();
+// console.log(thisReaction.colorScheme);
+
 
 // Displays reactant on user input in form
 Reaction.prototype.displayReactant = function(input, moleculeID) {
