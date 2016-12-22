@@ -1,0 +1,49 @@
+{
+  "equations":
+  [
+    {
+      "reactants" :[
+        {
+          "formula" : "Mg",
+          "shape" : "linear",
+          "composition" : ["Mg"]
+        },
+        {
+          "formula" : "O₂",
+          "shape" : "linear",
+          "composition" : ["O", "O"]
+        }
+      ],
+      "products" :
+      [
+        {
+          "formula" : "MgO",
+          "shape" : "linear",
+          "composition" : ["Mg", "O"]
+        }
+      ]
+    },
+    {
+      "reactants" : [
+        {
+          "formula" : "N₂",
+          "shape" : "linear",
+          "composition" : ["N", "N"]
+        },
+        {
+          "formula" : "H₂",
+          "shape" : "linear",
+          "composition" : ["H", "H"]
+        }
+      ],
+      "products" :
+      [
+        {
+          "formula" : "NH₃",
+          "shape" : "trigonal-pyrimidal",
+          "composition" : ["N", "H", "H", "H"]
+        }
+      ]
+    },
+  ]
+}
