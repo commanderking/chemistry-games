@@ -1,0 +1,25 @@
+{
+  "name": "chemistry-games",
+  "version": "1.0.0",
+  "description": "Chemistry related learning activities",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/commanderking/chemistry-games.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/commanderking/chemistry-games/issues"
+  },
+  "homepage": "https://github.com/commanderking/chemistry-games#readme",
+  "devDependencies": {
+    "jquery": "^3.1.1",
+    "lodash": "^4.17.2",
+    "p5": "^0.5.5",
+    "webpack": "^1.14.0"
+  }
+}

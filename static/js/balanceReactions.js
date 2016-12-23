@@ -1,4 +1,7 @@
-// TODO
+/*
+var $ = require("jquery");
+var _ = require("lodash");
+*/
 
 console.log("start");
 $.getJSON("./static/json/reactions.json", function(data) {
