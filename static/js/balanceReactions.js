@@ -3,16 +3,87 @@ var $ = require("jquery");
 var _ = require("lodash");
 */
 
+var getReactionsJSON = function() {
+	return $.getJSON("./static/json/reactions.json").then(function(data) {
+		return data;
+	})
+}
+/*
 console.log("start");
 $.getJSON("./static/json/reactions.json", function(data) {
 	console.log(data);
-}).done(function() {
+}).done(function(data) {
 	// maybe run function for creating reaction?
+	// index of the reaction that we are on in the JSON file
+	var indexOfReaction = 0;
+
+	var equation = data.equations[indexOfReaction];
+	var products = equation.products;
+	var reactants = equation.reactants;
+
+	Reaction(reactants, products, equation);
 }).fail(function(d, textStatus,error) {
 	console.log(textStatus);
 	console.log(error);
-});
+}); */
 
+var Reaction = function(equation) {
+	var reactants = equation.reactants;
+	var products = equation.products;
+	// get the elements first
+	var elements = [];
+	for (var i = 0; i < reactants.length; i++) {
+		elements = elements.concat(reactants[i].composition);
+	}
+	for (var i = 0; i < products.length; i++) {
+		elements = elements.concat(products[i].composition);
+	}
+	// get rid of duplicates
+	this.elements = elements.filter(function (item, pos) {
+		return elements.indexOf(item) == pos;
+	})
+
+	this.reactionBalanced = false;
+	this.reactantsArray = [];
+	this.productsArray = [];
+	for (var i = 0; i < reactants.length; i++) {
+		var reactant = {
+			"id" : "r"+i,
+			"formula" : reactants[i].formula,
+			"composition": reactants[i].composition,
+			"shape" : reactants[i].shape,
+			"startCoordinates" : {
+				"x": i*200 + 100,
+				"y": 50
+			},
+			"active": false,
+			"currentNumber" : 0,
+			"lastNumber" : 0
+		}
+		this["r"+i] = reactant;
+		this.reactantsArray.push(reactant);
+	}
+	for (var i = 0; i < products.length; i++) {
+		var drawIndex = i + reactants.length;
+		var product = {
+			"id" : "p"+i,
+			"formula" : products[i].formula,
+			"composition": products[i].composition,
+			"shape" : products[i].shape,
+			"startCoordinates" : {
+				"x": drawIndex*200 + 100,
+				"y": 50
+			},
+			"active": false,
+			"currentNumber" : 0,
+			"lastNumber" : 0
+		}
+		this["p"+i] = product;
+		this.productsArray.push(product);
+	}
+	this.correctRatio = equation.correctRatio;
+}
+/*
 var Reaction = function() {
 	this.elements = ["Mg", "O"];
 	this.reactionBalanced = false;
@@ -120,7 +191,7 @@ var Reaction = function() {
 	this.productsArray.push(this.p1);
 
 	this.correctRatio = [1,3,2];
-};
+};*/
 
 // For now assign color based on the order the atom appears in reaction
 // TODO: In future, might want to change colors based on the exact element
@@ -255,10 +326,10 @@ Reaction.prototype.drawMolecule = function(molecule) {
 
 	}
 };
-
+/*
 var thisReaction = new Reaction();
 thisReaction.mapColorScheme();
-thisReaction.getColorArray();
+thisReaction.getColorArray(); */
 // console.log(thisReaction.colorScheme);
 
 
@@ -307,29 +378,47 @@ Reaction.prototype.submitAnswer = function() {
 	}
 };
 
+var thisReaction;
+var finishedSetup = false;
 function setup() {
 	var canvas = createCanvas(windowWidth, windowHeight);
 	canvas.background(200);
-	// Render equation (reactants, then products);
-	thisReaction.reactantsArray.forEach(thisReaction.renderMolecularFormula);
-	createSpan('->').addClass('equals').parent('reaction');
-	thisReaction.productsArray.forEach(thisReaction.renderMolecularFormula);
-	createButton('Submit').mousePressed(thisReaction.submitAnswer).parent('reaction')
-		.addClass('btn btn-sm btn-info');
+	getReactionsJSON().then(function(returnData){
+		console.log("received data!");
+		console.log(returnData);
+		var indexOfReaction = 0;
+
+		var equation = returnData.equations[indexOfReaction];
+		thisReaction = new Reaction(equation);
+		thisReaction.mapColorScheme();
+		thisReaction.getColorArray();
+
+		// Render equation (reactants, then products);
+		thisReaction.reactantsArray.forEach(thisReaction.renderMolecularFormula);
+		createSpan('->').addClass('equals').parent('reaction');
+		thisReaction.productsArray.forEach(thisReaction.renderMolecularFormula);
+		createButton('Submit').mousePressed(thisReaction.submitAnswer).parent('reaction')
+			.addClass('btn btn-sm btn-info');
+
+			finishedSetup = true;
+	})
+
 }
 
 function draw() {
-	// Draw reactants
-	thisReaction.reactantsArray.forEach(function(molecule) {
-		thisReaction.drawMolecule(molecule);
-	});
+	if (finishedSetup) {
+		// Draw reactants
+		thisReaction.reactantsArray.forEach(function(molecule) {
+			thisReaction.drawMolecule(molecule);
+		});
 
-	// Draw products
-	thisReaction.productsArray.forEach(function(molecule){
-		thisReaction.drawMolecule(molecule);
-	});
+		// Draw products
+		thisReaction.productsArray.forEach(function(molecule){
+			thisReaction.drawMolecule(molecule);
+		});
 
-	if (thisReaction.reactionBalanced === true) {
+		if (thisReaction.reactionBalanced === true) {
 
+		}
 	}
 }
