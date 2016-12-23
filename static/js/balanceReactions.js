@@ -323,12 +323,6 @@ Reaction.prototype.drawMolecule = function(molecule) {
 
 	}
 };
-/*
-var thisReaction = new Reaction();
-thisReaction.mapColorScheme();
-thisReaction.getColorArray(); */
-// console.log(thisReaction.colorScheme);
-
 
 // Displays reactant on user input in form
 Reaction.prototype.displayReactant = function(input, moleculeID) {
@@ -372,38 +366,70 @@ Reaction.prototype.submitAnswer = function() {
 	if(_.isEqual(lowestRatioArray, thisReaction.correctRatio)) {
 		console.log("You're correct");
 		thisReaction.reactionBalanced = true;
+		// move on to the next reaction
+		moveForwardOneEquation();
 	}
 };
 
 var thisReaction;
-var finishedSetup = false;
+var allEquations = null;
+var indexOfReaction;
+var numberOfEquations;
+var canvas;
+
+var drawThisReaction = function() {
+	thisReaction.mapColorScheme();
+	thisReaction.getColorArray();
+
+	// Render equation (reactants, then products);
+	thisReaction.reactantsArray.forEach(thisReaction.renderMolecularFormula);
+	createSpan('->').addClass('equals').parent('reaction');
+	thisReaction.productsArray.forEach(thisReaction.renderMolecularFormula);
+	createButton('Submit').mousePressed(thisReaction.submitAnswer).parent('reaction')
+		.addClass('btn btn-sm btn-info');
+	createSpan('<br>').parent('reaction');
+	createButton('<').mousePressed(moveBackOneEquation).parent('reaction').addClass('btn btn-sm');
+	createButton('>').mousePressed(moveForwardOneEquation).parent('reaction').addClass('btn btn-sm');
+}
+
+var moveForwardOneEquation = function() {
+	if (indexOfReaction < numberOfEquations - 1) {
+		clearCanvas();
+		removeElements();
+		indexOfReaction++;
+		thisReaction = new Reaction(allEquations.equations[indexOfReaction]);
+		drawThisReaction();
+	}
+}
+var moveBackOneEquation = function() {
+	if (indexOfReaction > 0) {
+		clearCanvas();
+		removeElements();
+		indexOfReaction--;
+		thisReaction = new Reaction(allEquations.equations[indexOfReaction]);
+		drawThisReaction();
+	}
+}
+
+var clearCanvas = function() {
+	canvas.background(200);
+}
+
 function setup() {
-	var canvas = createCanvas(windowWidth, windowHeight);
+	canvas = createCanvas(windowWidth, windowHeight);
 	canvas.background(200);
 	getReactionsJSON().then(function(returnData){
-		console.log("received data!");
-		console.log(returnData);
-		var indexOfReaction = 0;
-
-		var equation = returnData.equations[indexOfReaction];
+		allEquations = returnData;
+		indexOfReaction = 0;
+		numberOfEquations = allEquations.equations.length;
+		var equation = allEquations.equations[indexOfReaction];
 		thisReaction = new Reaction(equation);
-		thisReaction.mapColorScheme();
-		thisReaction.getColorArray();
-
-		// Render equation (reactants, then products);
-		thisReaction.reactantsArray.forEach(thisReaction.renderMolecularFormula);
-		createSpan('->').addClass('equals').parent('reaction');
-		thisReaction.productsArray.forEach(thisReaction.renderMolecularFormula);
-		createButton('Submit').mousePressed(thisReaction.submitAnswer).parent('reaction')
-			.addClass('btn btn-sm btn-info');
-
-			finishedSetup = true;
+		drawThisReaction();
 	})
-
 }
 
 function draw() {
-	if (finishedSetup) {
+	if (allEquations != null) {
 		// Draw reactants
 		thisReaction.reactantsArray.forEach(function(molecule) {
 			thisReaction.drawMolecule(molecule);
