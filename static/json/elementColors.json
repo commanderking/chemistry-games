@@ -1,0 +1,46 @@
+{
+  "alkaliMetals" : {
+    "_comment" : "pastel orange",
+    "bgColor": "#ffb347"
+  },
+  "alkalineEarthMetals": {
+    "_comment" : "pastel brown",
+    "bgColor" : "#836953"
+  },
+  "transitionMetals" : {
+    "_comment" : "pastel silver",
+    "bgColor" : "#c0c0c0"
+  },
+  "postTransitionMetals" : {
+    "_comment" : "pastel green",
+    "bgColor" : "#77dd77"
+  },
+  "metalloids" : {
+    "_comment" : "pastel purple",
+    "bgColor" : "#b19cd9"
+  },
+  "halogens" : {
+    "_comment" : "pastel red",
+    "bgColor" : "#ff6961"
+  },
+  "carbon" : {
+    "_comment" : "black",
+    "bgColor" : "#000000"
+  },
+  "nitrogen" : {
+    "_comment" : "pastel blue",
+    "bgColor" : "#aec6cf"
+  },
+  "sulfur" : {
+    "_comment" : "pastel green",
+    "bgColor" : "#77dd77"
+  },
+  "phosphorous" : {
+    "_comment" : "pastel pink",
+    "bgColor" : "#ee9b95"
+  },
+  "other" : {
+    "_comment" : "pastel gray",
+    "bgCoor" : "#cfcfc4"
+  }
+}
