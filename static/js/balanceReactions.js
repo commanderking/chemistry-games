@@ -1,7 +1,8 @@
-/*
+
 var $ = require("jquery");
 var _ = require("lodash");
-*/
+var p5 = require("p5");
+var p5dom = require("../js/p5.dom.js");
 
 var getReactionsJSON = function() {
 	return $.getJSON("./static/json/reactions.json").then(function(data) {
@@ -240,93 +241,6 @@ Reaction.prototype.getColorArray = function(elementSymbol) {
 	return rgbArray;
 };
 
-// Draw atom or molecule
-Reaction.prototype.drawMolecule = function(molecule) {
-	if (molecule.active === true) {
-		var x = molecule.startCoordinates.x;
-		var y = molecule.startCoordinates.y;
-		// xBuffer determines spacing between one atom and next atom in molecule
-		// yBuffer determines spacing between one molecule and next molecule below it
-		var xBuffer = 45;
-		var yBuffer = 60;
-		var atomWidth = 50;
-		var atomHeight = 50;
-
-		if (molecule.shape === "linear") {
-			// Erase previous molecules by drawing white circles over
-			for (i=0; i <= molecule.lastNumber; i++) {
-				molecule.composition.forEach(function(element,j) {
-					stroke(200);
-					fill(200);
-					ellipseTemp = ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);
-				});
-			}
-			for (i=0; i < molecule.currentNumber; i++) {
-				// draw one of the molecule
-				molecule.composition.forEach(function(element, j){
-					console.log(element);
-					var rgbArray = thisReaction.getColorArray(element);
-					console.log(rgbArray);
-					noStroke();
-					fill(255,127,80);
-					ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);
-					stroke(0);
-					fill(255);
-					textFont("Helvetica", 20, 30);
-					textAlign(CENTER, CENTER);
-					textSize(16);
-					text(element, x + (j * xBuffer) - atomWidth/2, y - atomHeight/2 + i* yBuffer, atomWidth, atomHeight);
-					molecule.lastNumber = i;
-				});
-			}
-			// Changes actual value in Reaction function
-		} else if (molecule.shape === "trigonal-pyrimidal") {
-			fill(200);
-			stroke(200);
-			rect(x,y - 22, 100, windowHeight);
-			// First element in array is central atom
-			for (i=0; i<molecule.currentNumber; i++) {
-				// Defines how much each molecule should be separated from one below it
-				var verticalShift = i * yBuffer * 2;
-				noStroke();
-				textFont("Helvetica", 20, 30);
-				textAlign(CENTER, CENTER);
-
-				// Define colors
-				console.log(this.colorScheme);
-
-				// Assume surrounding atoms are smaller
-				// Top left atom
-				fill(127, 255, 255);
-				ellipse(x + 25, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
-				fill(0);
-				text(molecule.composition[1], x + 5, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-
-				// Top right atom
-				fill(127, 255, 255);
-				ellipse(x + 75, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
-				fill(0);
-				text(molecule.composition[2], x + 60, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-
-				// Bottom atom
-				fill(127, 255, 255);
-				ellipse(x + 50, y + 50 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-				fill(0);
-				text(molecule.composition[3], x + 35, y + 40 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-
-				// Central atom
-				fill(255,127,80);
-				ellipse(x + 50, y + 20 + verticalShift, atomWidth, atomHeight);
-				fill(255);
-				text(molecule.composition[0], x + 28, y - 4 + verticalShift, atomWidth, atomHeight);
-			}
-		}
-
-		molecule.active = false;
-
-	}
-};
-
 // Displays reactant on user input in form
 Reaction.prototype.displayReactant = function(input, moleculeID) {
 	var that = this;
@@ -337,114 +251,207 @@ Reaction.prototype.displayReactant = function(input, moleculeID) {
 	});
 };
 
-// Reactant takes a moleculeObject, such as this.r1
-Reaction.prototype.renderMolecularFormula = function(moleculeObject, i, moleculeArray) {
-	var reactantDOM = {};
-	createDiv('').parent('reaction').addClass('formulaWidth').id(moleculeObject.id);
-	reactantDOM[moleculeObject.id] = createInput('').addClass(moleculeObject.id + "input").parent(moleculeObject.id);
-	createSpan(moleculeObject.formula).addClass(moleculeObject.id + "formula").parent(moleculeObject.id);
-	if (i < moleculeArray.length - 1) {
-		createSpan(' +').addClass('plusSign').parent('reaction');
-	}
-	thisReaction.displayReactant(reactantDOM[moleculeObject.id], moleculeObject.id);
-};
-
-Reaction.prototype.submitAnswer = function() {
-	console.log("answer submitted");
-
-	var userAnswer = [];
-	thisReaction.reactantsArray.forEach(function(moleculeObject){
-		userAnswer.push(parseInt(moleculeObject.currentNumber));
-	});
-	thisReaction.productsArray.forEach(function(moleculeObject){
-		userAnswer.push(parseInt(moleculeObject.currentNumber));
-	});
-
-	// Find lowest number to calculate the lowest ratio
-	var min = Math.min.apply(Math, userAnswer);
-	var lowestRatioArray = userAnswer.map(function(numberOfElement){
-		return numberOfElement/min;
-	});
-
-	if(_.isEqual(lowestRatioArray, thisReaction.correctRatio)) {
-		console.log("You're correct");
-		thisReaction.reactionBalanced = true;
-		// move on to the next reaction
-		moveForwardOneEquation();
-	}
-};
-
 var thisReaction;
 var allEquations = null;
 var indexOfReaction;
 var numberOfEquations;
 var canvas;
 
-var drawThisReaction = function() {
-	thisReaction.mapColorScheme();
-	thisReaction.getColorArray();
+var sketchReaction = function(p) {
 
-	// Render equation (reactants, then products);
-	thisReaction.reactantsArray.forEach(thisReaction.renderMolecularFormula);
-	createSpan('->').addClass('equals').parent('reaction');
-	thisReaction.productsArray.forEach(thisReaction.renderMolecularFormula);
-	createButton('Submit').mousePressed(thisReaction.submitAnswer).parent('reaction')
-		.addClass('btn btn-sm btn-info');
-	createSpan('<br>').parent('reaction');
-	createButton('<').mousePressed(moveBackOneEquation).parent('reaction').addClass('btn btn-sm');
-	createButton('>').mousePressed(moveForwardOneEquation).parent('reaction').addClass('btn btn-sm');
-}
-
-var moveForwardOneEquation = function() {
-	if (indexOfReaction < numberOfEquations - 1) {
-		clearCanvas();
-		removeElements();
-		indexOfReaction++;
-		thisReaction = new Reaction(allEquations.equations[indexOfReaction]);
-		drawThisReaction();
+	var clearCanvas = function() {
+		canvas.background(200);
 	}
-}
-var moveBackOneEquation = function() {
-	if (indexOfReaction > 0) {
-		clearCanvas();
-		removeElements();
-		indexOfReaction--;
-		thisReaction = new Reaction(allEquations.equations[indexOfReaction]);
-		drawThisReaction();
+
+	// Reactant takes a moleculeObject, such as this.r1
+	renderMolecularFormula = function(moleculeObject, i, moleculeArray) {
+		var reactantDOM = {};
+		p.createDiv('').parent('reaction').addClass('formulaWidth').id(moleculeObject.id);
+		reactantDOM[moleculeObject.id] = p.createInput('').addClass(moleculeObject.id + "input").parent(moleculeObject.id);
+		p.createSpan(moleculeObject.formula).addClass(moleculeObject.id + "formula").parent(moleculeObject.id);
+		if (i < moleculeArray.length - 1) {
+			p.createSpan(' +').addClass('plusSign').parent('reaction');
+		}
+		thisReaction.displayReactant(reactantDOM[moleculeObject.id], moleculeObject.id);
+	};
+
+	var drawThisReaction = function() {
+		thisReaction.mapColorScheme();
+		thisReaction.getColorArray();
+
+		// Render equation (reactants, then products);
+		thisReaction.reactantsArray.forEach(renderMolecularFormula);
+		p.createSpan('->').addClass('equals').parent('reaction');
+		thisReaction.productsArray.forEach(renderMolecularFormula);
+		p.createButton('Submit').mousePressed(submitAnswer).parent('reaction')
+			.addClass('btn btn-sm btn-info');
+		p.createSpan('<br>').parent('reaction');
+		p.createButton('<').mousePressed(moveBackOneEquation).parent('reaction').addClass('btn btn-sm');
+		p.createButton('>').mousePressed(moveForwardOneEquation).parent('reaction').addClass('btn btn-sm');
 	}
-}
 
-var clearCanvas = function() {
-	canvas.background(200);
-}
+	// Draw atom or molecule
+	drawMolecule = function(molecule) {
+		if (molecule.active === true) {
+			var x = molecule.startCoordinates.x;
+			var y = molecule.startCoordinates.y;
+			// xBuffer determines spacing between one atom and next atom in molecule
+			// yBuffer determines spacing between one molecule and next molecule below it
+			var xBuffer = 45;
+			var yBuffer = 60;
+			var atomWidth = 50;
+			var atomHeight = 50;
 
-function setup() {
-	canvas = createCanvas(windowWidth, windowHeight);
-	canvas.background(200);
-	getReactionsJSON().then(function(returnData){
-		allEquations = returnData;
-		indexOfReaction = 0;
-		numberOfEquations = allEquations.equations.length;
-		var equation = allEquations.equations[indexOfReaction];
-		thisReaction = new Reaction(equation);
-		drawThisReaction();
-	})
-}
+			if (molecule.shape === "linear") {
+				// Erase previous molecules by drawing white circles over
+				for (i=0; i <= molecule.lastNumber; i++) {
+					molecule.composition.forEach(function(element,j) {
+						p.stroke(200);
+						p.fill(200);
+						ellipseTemp = p.ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);
+					});
+				}
+				for (i=0; i < molecule.currentNumber; i++) {
+					// draw one of the molecule
+					molecule.composition.forEach(function(element, j){
+						console.log(element);
+						var rgbArray = thisReaction.getColorArray(element);
+						console.log(rgbArray);
+						p.noStroke();
+						p.fill(255,127,80);
+						p.ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);
+						p.stroke(0);
+						p.fill(255);
+						p.textFont("Helvetica", 20, 30);
+						p.textAlign(p.CENTER, p.CENTER);
+						p.textSize(16);
+						p.text(element, x + (j * xBuffer) - atomWidth/2, y - atomHeight/2 + i* yBuffer, atomWidth, atomHeight);
+						molecule.lastNumber = i;
+					});
+				}
+				// Changes actual value in Reaction function
+			} else if (molecule.shape === "trigonal-pyrimidal") {
+				p.fill(200);
+				p.stroke(200);
+				p.rect(x,y - 22, 100, p.windowHeight);
+				// First element in array is central atom
+				for (i=0; i<molecule.currentNumber; i++) {
+					// Defines how much each molecule should be separated from one below it
+					var verticalShift = i * yBuffer * 2;
+					p.noStroke();
+					p.textFont("Helvetica", 20, 30);
+					p.textAlign(p.CENTER, p.CENTER);
 
-function draw() {
-	if (allEquations != null) {
-		// Draw reactants
-		thisReaction.reactantsArray.forEach(function(molecule) {
-			thisReaction.drawMolecule(molecule);
+					// Define colors
+					console.log(this.colorScheme);
+
+					// Assume surrounding atoms are smaller
+					// Top left atom
+					p.fill(127, 255, 255);
+					p.ellipse(x + 25, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
+					p.fill(0);
+					p.text(molecule.composition[1], x + 5, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+
+					// Top right atom
+					p.fill(127, 255, 255);
+					p.ellipse(x + 75, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
+					p.fill(0);
+					p.text(molecule.composition[2], x + 60, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+
+					// Bottom atom
+					p.fill(127, 255, 255);
+					p.ellipse(x + 50, y + 50 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+					p.fill(0);
+					p.text(molecule.composition[3], x + 35, y + 40 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+
+					// Central atom
+					p.fill(255,127,80);
+					p.ellipse(x + 50, y + 20 + verticalShift, atomWidth, atomHeight);
+					p.fill(255);
+					p.text(molecule.composition[0], x + 28, y - 4 + verticalShift, atomWidth, atomHeight);
+				}
+			}
+
+			molecule.active = false;
+
+		}
+	};
+
+	var moveForwardOneEquation = function() {
+		if (indexOfReaction < numberOfEquations - 1) {
+			clearCanvas();
+			p.removeElements();
+			indexOfReaction++;
+			thisReaction = new Reaction(allEquations.equations[indexOfReaction]);
+			drawThisReaction();
+		}
+	};
+	var moveBackOneEquation = function() {
+		if (indexOfReaction > 0) {
+			clearCanvas();
+			p.removeElements();
+			indexOfReaction--;
+			thisReaction = new Reaction(allEquations.equations[indexOfReaction]);
+			drawThisReaction();
+		}
+	}
+
+	var submitAnswer = function() {
+		console.log("answer submitted");
+
+		var userAnswer = [];
+		thisReaction.reactantsArray.forEach(function(moleculeObject){
+			userAnswer.push(parseInt(moleculeObject.currentNumber));
+		});
+		thisReaction.productsArray.forEach(function(moleculeObject){
+			userAnswer.push(parseInt(moleculeObject.currentNumber));
 		});
 
-		// Draw products
-		thisReaction.productsArray.forEach(function(molecule){
-			thisReaction.drawMolecule(molecule);
+		// Find lowest number to calculate the lowest ratio
+		var min = Math.min.apply(Math, userAnswer);
+		var lowestRatioArray = userAnswer.map(function(numberOfElement){
+			return numberOfElement/min;
 		});
 
-		if (thisReaction.reactionBalanced === true) {
+		if(_.isEqual(lowestRatioArray, thisReaction.correctRatio)) {
+			console.log("You're correct");
+			thisReaction.reactionBalanced = true;
+			// move on to the next reaction
+			moveForwardOneEquation();
+		}
+	};
 
+	p.setup = function() {
+		canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+		canvas.background(200);
+		getReactionsJSON().then(function(returnData){
+			allEquations = returnData;
+			indexOfReaction = 0;
+			numberOfEquations = allEquations.equations.length;
+			var equation = allEquations.equations[indexOfReaction];
+			thisReaction = new Reaction(equation);
+			drawThisReaction();
+		})
+	}
+
+	p.draw = function() {
+		if (allEquations != null) {
+			// Draw reactants
+			thisReaction.reactantsArray.forEach(function(molecule) {
+				drawMolecule(molecule);
+			});
+
+			// Draw products
+			thisReaction.productsArray.forEach(function(molecule){
+				drawMolecule(molecule);
+			});
+
+			if (thisReaction.reactionBalanced === true) {
+
+			}
 		}
 	}
 }
+
+var newSketch = new p5(sketchReaction);
+console.log(newSketch);
