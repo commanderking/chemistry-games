@@ -1,46 +1,73 @@
 {
-  "alkaliMetals" : {
-    "_comment" : "pastel orange",
-    "bgColor": "#ffb347"
-  },
-  "alkalineEarthMetals": {
-    "_comment" : "pastel brown",
-    "bgColor" : "#836953"
-  },
-  "transitionMetals" : {
-    "_comment" : "pastel silver",
-    "bgColor" : "#c0c0c0"
-  },
-  "postTransitionMetals" : {
-    "_comment" : "pastel green",
-    "bgColor" : "#77dd77"
-  },
-  "metalloids" : {
-    "_comment" : "pastel purple",
-    "bgColor" : "#b19cd9"
-  },
-  "halogens" : {
-    "_comment" : "pastel red",
-    "bgColor" : "#ff6961"
-  },
-  "carbon" : {
-    "_comment" : "black",
-    "bgColor" : "#000000"
-  },
-  "nitrogen" : {
-    "_comment" : "pastel blue",
-    "bgColor" : "#aec6cf"
-  },
-  "sulfur" : {
-    "_comment" : "pastel green",
-    "bgColor" : "#77dd77"
-  },
-  "phosphorous" : {
-    "_comment" : "pastel pink",
-    "bgColor" : "#ee9b95"
-  },
-  "other" : {
-    "_comment" : "pastel gray",
-    "bgCoor" : "#cfcfc4"
-  }
+  "typeToColor" : [
+    {
+      "type" : "alkaliMetals",
+      "symbol": ["Li", "Na", "K", "Rb", "Cs", "Fr"],
+      "_comment" : "pastel orange",
+      "bgColor": "#ffb347"
+    },
+    {
+      "type" : "alkalineEarthMetals",
+      "symbol" : ["Be", "Mg", "Ca", "Sr", "Ba", "Ra"],
+      "_comment" : "pastel brown",
+      "bgColor" : "#836953"
+    },
+    {
+      "type" : "transitionMetals",
+      "symbol" : ["Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
+                  "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
+                  "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg"],
+      "_comment" : "pastel silver",
+      "bgColor" : "#c0c0c0"
+    },
+    {
+      "type" : "postTransitionMetals",
+      "symbol" : ["Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi"],
+      "_comment" : "pastel green",
+      "bgColor" : "#77dd77"
+    },
+    {
+      "type" : "metalloids",
+      "symbol" : ["B", "Si", "Ge", "As", "Sb", "Te", "Po"],
+      "_comment" : "pastel purple",
+      "bgColor" : "#b19cd9"
+    },
+    {
+      "type" : "halogens",
+      "symbol" : ["F", "Cl", "Br", "I", "At"],
+      "_comment" : "pastel red",
+      "bgColor" : "#ff6961"
+    },
+    {
+      "type" : "carbon",
+      "symbol" : ["C"],
+      "_comment" : "black",
+      "bgColor" : "#000000"
+    },
+    {
+      "type" : "oxygen",
+      "symbol" : ["O"],
+      "_comment" : "pastel red",
+      "bgColor" : "#ff6961"
+    },
+    {
+      "type" : "nitrogen",
+      "symbol" : ["N"],
+      "_comment" : "pastel blue",
+      "bgColor" : "#aec6cf"
+    },
+    {
+      "type" : "sulfur",
+      "symbol" : ["S"],
+      "_comment" : "pastel green",
+      "bgColor" : "#77dd77"
+    },
+    {
+      "type" : "phosphorous",
+      "symbol" : ["P"],
+      "_comment" : "pastel pink",
+      "bgColor" : "#ee9b95"
+    }
+  ],
+  "defaultColor" : "#cfcfc4"
 }

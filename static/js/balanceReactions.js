@@ -4,11 +4,37 @@ var _ = require("lodash");
 var p5 = require("p5");
 var p5dom = require("../js/p5.dom.js");
 
+let backgroundCanvasDefault = 200;
+
 var getReactionsJSON = function() {
 	return $.getJSON("./static/json/reactions.json").then(function(data) {
 		return data;
 	})
 }
+
+var elementColors = {
+	colorData: {},
+	getColorData: function() {
+		$.getJSON("./static/json/elementColors.json").done((data) => {
+			console.log(data);
+			this.colorData = data;
+			return data;
+		});
+	},
+	getElementColor: function(elementSymbol) {
+		var color = this.colorData.defaultColor;
+		this.colorData.typeToColor.forEach(function(group) {
+			for (i=0; i<group.symbol.length; i++) {
+				if (elementSymbol === group.symbol[i]) {
+					color = group.bgColor;
+				}
+			}
+		})
+		return color;
+	}
+}
+
+elementColors.getColorData();
 
 var Reaction = function(equation) {
 	var reactants = equation.reactants;
@@ -67,53 +93,6 @@ var Reaction = function(equation) {
 	this.correctRatio = equation.correctRatio;
 }
 
-// For now assign color based on the order the atom appears in reaction
-// TODO: In future, might want to change colors based on the exact element
-Reaction.prototype.assignAtomColor = function(index) {
-	switch(index){
-		case 0:
-			//orange
-			return [255,127,80];
-			break;
-		case 1:
-			//light blue
-			return [127, 255, 255];
-			break;
-		default:
-			break;
-	}
-}
-
-Reaction.prototype.mapColorScheme = function() {
-	// Generate color scheme for atoms
-	var colorSchemeArray = [];
-	this.elements.forEach(function(element, i) {
-
-		var colorScheme = {};
-		colorScheme["index"] = i;
-		colorScheme["element"] = element;
-		colorScheme["color"] = thisReaction.assignAtomColor(i);
-		colorSchemeArray.push(colorScheme);
-	});
-	this.colorScheme = colorSchemeArray;
-};
-
-Reaction.prototype.getColorArray = function(elementSymbol) {
-	var rgbArray;
-	console.log(elementSymbol);
-
-	if (this.colorSchemeArray) {
-		colorSchemeArray.forEach(function(colorSchemeObject) {
-			if (elementSymbol === colorSchemeObject.element) {
-				colorToReturn = colorSchemeObject.color;
-			}
-		});
-	} else {
-		rgbArray = [0,0,0];
-	}
-	return rgbArray;
-};
-
 // Displays reactant on user input in form
 Reaction.prototype.displayReactant = function(input, moleculeID) {
 	var that = this;
@@ -133,7 +112,7 @@ var canvas;
 var sketchReaction = function(p) {
 
 	var clearCanvas = function() {
-		canvas.background(200);
+		canvas.background(backgroundCanvasDefault);
 	}
 
 	// Reactant takes a moleculeObject, such as this.r1
@@ -148,10 +127,7 @@ var sketchReaction = function(p) {
 		thisReaction.displayReactant(reactantDOM[moleculeObject.id], moleculeObject.id);
 	};
 
-	var drawThisReaction = function() {
-		thisReaction.mapColorScheme();
-		thisReaction.getColorArray();
-
+	var renderChemicalEquation = function() {
 		// Render equation (reactants, then products);
 		thisReaction.reactantsArray.forEach(renderMolecularFormula);
 		p.createSpan('->').addClass('equals').parent('reaction');
@@ -166,6 +142,7 @@ var sketchReaction = function(p) {
 	// Draw atom or molecule
 	drawMolecule = function(molecule) {
 		if (molecule.active === true) {
+
 			var x = molecule.startCoordinates.x;
 			var y = molecule.startCoordinates.y;
 			// xBuffer determines spacing between one atom and next atom in molecule
@@ -175,23 +152,31 @@ var sketchReaction = function(p) {
 			var atomWidth = 50;
 			var atomHeight = 50;
 
+			// Store colors that are needed for each element in array
+			var elementColorArray = [];
+			molecule.composition.forEach(function(element){
+				console.log(element);
+				elementColorArray.push(elementColors.getElementColor(element))
+			})
+			//var color = elementColors.getElementColor(molecule.composition[0]);
+			console.log(elementColorArray);
+
 			if (molecule.shape === "linear") {
-				// Erase previous molecules by drawing white circles over
+				// Erase previous molecules by drawing circles that share color with background
 				for (i=0; i <= molecule.lastNumber; i++) {
 					molecule.composition.forEach(function(element,j) {
-						p.stroke(200);
-						p.fill(200);
+						p.stroke(backgroundCanvasDefault);
+						p.fill(backgroundCanvasDefault);
 						ellipseTemp = p.ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);
 					});
 				}
+
 				for (i=0; i < molecule.currentNumber; i++) {
 					// draw one of the molecule
 					molecule.composition.forEach(function(element, j){
 						console.log(element);
-						var rgbArray = thisReaction.getColorArray(element);
-						console.log(rgbArray);
 						p.noStroke();
-						p.fill(255,127,80);
+						p.fill(elementColorArray[j]);
 						p.ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);
 						p.stroke(0);
 						p.fill(255);
@@ -204,8 +189,8 @@ var sketchReaction = function(p) {
 				}
 				// Changes actual value in Reaction function
 			} else if (molecule.shape === "trigonal-pyrimidal") {
-				p.fill(200);
-				p.stroke(200);
+				p.fill(backgroundCanvasDefault);
+				p.stroke(backgroundCanvasDefault);
 				p.rect(x,y - 22, 100, p.windowHeight);
 				// First element in array is central atom
 				for (i=0; i<molecule.currentNumber; i++) {
@@ -215,38 +200,33 @@ var sketchReaction = function(p) {
 					p.textFont("Helvetica", 20, 30);
 					p.textAlign(p.CENTER, p.CENTER);
 
-					// Define colors
-					console.log(this.colorScheme);
-
 					// Assume surrounding atoms are smaller
 					// Top left atom
-					p.fill(127, 255, 255);
+					p.fill(elementColorArray[1]);
 					p.ellipse(x + 25, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
 					p.fill(0);
 					p.text(molecule.composition[1], x + 5, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
 
 					// Top right atom
-					p.fill(127, 255, 255);
+					p.fill(elementColorArray[2]);
 					p.ellipse(x + 75, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
 					p.fill(0);
 					p.text(molecule.composition[2], x + 60, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
 
 					// Bottom atom
-					p.fill(127, 255, 255);
+					p.fill(elementColorArray[3]);
 					p.ellipse(x + 50, y + 50 + verticalShift, atomWidth/1.3, atomHeight/1.3);
 					p.fill(0);
 					p.text(molecule.composition[3], x + 35, y + 40 + verticalShift, atomWidth/1.3, atomHeight/1.3);
 
 					// Central atom
-					p.fill(255,127,80);
+					p.fill(elmentColorArray[0]);
 					p.ellipse(x + 50, y + 20 + verticalShift, atomWidth, atomHeight);
 					p.fill(255);
 					p.text(molecule.composition[0], x + 28, y - 4 + verticalShift, atomWidth, atomHeight);
 				}
 			}
-
 			molecule.active = false;
-
 		}
 	};
 
@@ -256,7 +236,7 @@ var sketchReaction = function(p) {
 			p.removeElements();
 			indexOfReaction++;
 			thisReaction = new Reaction(allEquations.equations[indexOfReaction]);
-			drawThisReaction();
+			renderChemicalEquation();
 		}
 	};
 	var moveBackOneEquation = function() {
@@ -265,7 +245,7 @@ var sketchReaction = function(p) {
 			p.removeElements();
 			indexOfReaction--;
 			thisReaction = new Reaction(allEquations.equations[indexOfReaction]);
-			drawThisReaction();
+			renderChemicalEquation();
 		}
 	}
 
@@ -296,14 +276,14 @@ var sketchReaction = function(p) {
 
 	p.setup = function() {
 		canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-		canvas.background(200);
+		canvas.background(backgroundCanvasDefault);
 		getReactionsJSON().then(function(returnData){
 			allEquations = returnData;
 			indexOfReaction = 0;
 			numberOfEquations = allEquations.equations.length;
 			var equation = allEquations.equations[indexOfReaction];
 			thisReaction = new Reaction(equation);
-			drawThisReaction();
+			renderChemicalEquation();
 		})
 	}
 
@@ -318,10 +298,6 @@ var sketchReaction = function(p) {
 			thisReaction.productsArray.forEach(function(molecule){
 				drawMolecule(molecule);
 			});
-
-			if (thisReaction.reactionBalanced === true) {
-
-			}
 		}
 	}
 }

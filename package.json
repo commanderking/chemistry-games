@@ -4,7 +4,7 @@
   "description": "Chemistry related learning activities",
   "main": "index.js",
   "scripts": {
-    "build": "webpack"
+    "build": "./node_modules/.bin/webpack -d --watch"
   },
   "repository": {
     "type": "git",
