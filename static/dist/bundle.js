@@ -53,7 +53,7 @@
 	var p5 = __webpack_require__(/*! p5 */ 4);
 	var p5dom = __webpack_require__(/*! ../js/p5.dom.js */ 5);
 	
-	let backgroundCanvasDefault = 200;
+	let backgroundCanvasDefault = 255;
 	
 	var getReactionsJSON = function() {
 		return $.getJSON("./static/json/reactions.json").then(function(data) {
@@ -63,7 +63,7 @@
 	
 	var elementColors = {
 		colorData: {},
-		getColorData: function() {
+		init: function() {
 			$.getJSON("./static/json/elementColors.json").done((data) => {
 				console.log(data);
 				this.colorData = data;
@@ -83,7 +83,7 @@
 		}
 	}
 	
-	elementColors.getColorData();
+	elementColors.init();
 	
 	var Reaction = function(equation) {
 		var reactants = equation.reactants;
@@ -269,7 +269,50 @@
 						p.text(molecule.composition[3], x + 35, y + 40 + verticalShift, atomWidth/1.3, atomHeight/1.3);
 	
 						// Central atom
-						p.fill(elmentColorArray[0]);
+						p.fill(elementColorArray[0]);
+						p.ellipse(x + 50, y + 20 + verticalShift, atomWidth, atomHeight);
+						p.fill(255);
+						p.text(molecule.composition[0], x + 28, y - 4 + verticalShift, atomWidth, atomHeight);
+					}
+				} else if (molecule.shape === "tetrahedral") {
+					p.fill(backgroundCanvasDefault);
+					p.stroke(backgroundCanvasDefault);
+					p.rect(x,y - 22, 120, p.windowHeight);
+	
+					for (i=0; i<molecule.currentNumber; i++) {
+						// Defines how much each molecule should be separated from one below it
+						var verticalShift = i * yBuffer * 2;
+						p.noStroke();
+						p.textFont("Helvetica", 20, 30);
+						p.textAlign(p.CENTER, p.CENTER);
+	
+						// Assume surrounding atoms are smaller
+						// Top atom
+						p.fill(elementColorArray[1]);
+						p.ellipse(x + 50, y - 20 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+						p.fill(0);
+						p.text(molecule.composition[1], x + 35, y - 40 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+	
+						// Bottom atom
+						p.fill(elementColorArray[2]);
+						p.ellipse(x + 50, y + 55 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+						p.fill(0);
+						p.text(molecule.composition[2], x + 35, y + 42 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+	
+						// Left atom
+						p.fill(elementColorArray[3]);
+						p.ellipse(x + 15, y + 35 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+						p.fill(0);
+						p.text(molecule.composition[3], x, y + 15 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+	
+						// Right atom
+						p.fill(elementColorArray[4]);
+						p.ellipse(x + 85, y + 35 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+						p.fill(0);
+						p.text(molecule.composition[3], x + 70, y + 15 + verticalShift, atomWidth/1.3, atomHeight/1.3);
+	
+						// Central atom
+						p.fill(elementColorArray[0]);
 						p.ellipse(x + 50, y + 20 + verticalShift, atomWidth, atomHeight);
 						p.fill(255);
 						p.text(molecule.composition[0], x + 28, y - 4 + verticalShift, atomWidth, atomHeight);
@@ -352,7 +395,6 @@
 	}
 	
 	var newSketch = new p5(sketchReaction);
-	console.log(newSketch);
 
 
 /***/ },

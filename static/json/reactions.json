@@ -4,6 +4,34 @@
     {
       "reactants" :[
         {
+          "formula" : "CH₄",
+          "shape" : "tetrahedral",
+          "composition" : ["C", "H", "H", "H", "H"]
+        },
+        {
+          "formula" : "O₂",
+          "shape" : "linear",
+          "composition" : ["O", "O"]
+        }
+      ],
+      "products" :
+      [
+        {
+          "formula" : "CO₂",
+          "shape" : "linear",
+          "composition" : ["O", "C", "O"]
+        },
+        {
+          "formula" : "H₂O",
+          "shape" : "linear",
+          "composition" : ["H", "O", "H"]
+        }
+      ],
+      "correctRatio" : [1,2,1,2]
+    },
+    {
+      "reactants" :[
+        {
           "formula" : "Mg",
           "shape" : "linear",
           "composition" : ["Mg"]
