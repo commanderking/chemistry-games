@@ -23,8 +23,8 @@
         },
         {
           "formula" : "H₂O",
-          "shape" : "linear",
-          "composition" : ["H", "O", "H"]
+          "shape" : "bent",
+          "composition" : ["O", "H", "H"]
         }
       ],
       "correctRatio" : [1,2,1,2]
