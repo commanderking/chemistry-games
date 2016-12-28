@@ -1,5 +1,8 @@
 var canvasBGColor = require("./Constants.js").canvasBGColor
 
+// These functions are called in sketchReaction of balanceReaction.js
+// the this context refers to the context of sketchReaction
+
 module.exports = {
   linear: function(p, molecule) {
     // Erase previous molecules by drawing circles that share color with background

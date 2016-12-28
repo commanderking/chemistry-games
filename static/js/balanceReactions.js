@@ -104,12 +104,13 @@ Reaction.prototype.displayReactant = function(input, moleculeID) {
 
 elementColors.init();
 var thisReaction;
-var allEquations = null;
-var indexOfReaction;
-var numberOfEquations;
 var canvas;
 
 var sketchReaction = function(p) {
+	var that = this;
+	this.indexOfReaction = 0;
+	this.allEquations = null;
+	this.numberOfEquations = 0;
 
 	var clearCanvas = function() {
 		canvas.background(backgroundCanvasDefault);
@@ -141,28 +142,19 @@ var sketchReaction = function(p) {
 	// Draw atom or molecule
 	this.drawMolecule = function(molecule) {
 		if (molecule.active === true) {
-			var x = molecule.startCoordinates.x;
-			var y = molecule.startCoordinates.y;
-			// xBuffer determines spacing between one atom and next atom in molecule
-			// yBuffer determines spacing between one molecule and next molecule below it
-			var xBuffer = 45;
-			var yBuffer = 60;
-			var atomWidth = 50;
-			var atomHeight = 50;
-
 			this.x = molecule.startCoordinates.x;
 			this.y = molecule.startCoordinates.y;
 
+			// xBuffer determines spacing between one atom and next atom in molecule
+			// yBuffer determines spacing between one molecule and next molecule below it
 			this.xBuffer = 45;
 			this.yBuffer = 60;
 			this.atomWidth = 50;
 			this.atomHeight = 50;
 
 			// Store colors that are needed for each element in array
-			var elementColorArray = [];
 			this.elementColorArray = [];
 			molecule.composition.forEach(function(element){
-				elementColorArray.push(elementColors.getElementColor(element));
 				this.elementColorArray.push(elementColors.getElementColor(element));
 			})
 
@@ -185,20 +177,23 @@ var sketchReaction = function(p) {
 	};
 
 	var moveForwardOneEquation = function() {
-		if (indexOfReaction < numberOfEquations - 1) {
+		if (that.indexOfReaction < that.numberOfEquations - 1) {
 			clearCanvas();
 			p.removeElements();
-			indexOfReaction++;
-			thisReaction = new Reaction(allEquations.equations[indexOfReaction]);
+			console.log(that.indexOfReaction);
+			that.indexOfReaction++;
+			console.log(that.indexOfReaction);
+
+			thisReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
 			renderChemicalEquation();
 		}
 	};
 	var moveBackOneEquation = function() {
-		if (indexOfReaction > 0) {
+		if (that.indexOfReaction > 0) {
 			clearCanvas();
 			p.removeElements();
-			indexOfReaction--;
-			thisReaction = new Reaction(allEquations.equations[indexOfReaction]);
+			that.indexOfReaction--;
+			thisReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
 			renderChemicalEquation();
 		}
 	}
@@ -232,10 +227,9 @@ var sketchReaction = function(p) {
 		canvas = p.createCanvas(p.windowWidth, p.windowHeight);
 		canvas.background(backgroundCanvasDefault);
 		getReactionsJSON().then(function(returnData){
-			allEquations = returnData;
-			indexOfReaction = 0;
-			numberOfEquations = allEquations.equations.length;
-			var equation = allEquations.equations[indexOfReaction];
+			that.allEquations = returnData;
+			that.numberOfEquations = that.allEquations.equations.length;
+			var equation = that.allEquations.equations[that.indexOfReaction];
 			thisReaction = new Reaction(equation);
 			renderChemicalEquation();
 		})
