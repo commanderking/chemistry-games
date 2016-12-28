@@ -3,7 +3,7 @@ var $ = require("jquery");
 var _ = require("lodash");
 var p5 = require("p5");
 var p5dom = require("../js/p5.dom.js");
-// var sketchMolecules = require('p5SketchMolecules');
+var sketchMoleculeShape = require('./p5SketchMolecules');
 
 let backgroundCanvasDefault = 255;
 
@@ -139,9 +139,8 @@ var sketchReaction = function(p) {
 	}
 
 	// Draw atom or molecule
-	drawMolecule = function(molecule) {
+	this.drawMolecule = function(molecule) {
 		if (molecule.active === true) {
-
 			var x = molecule.startCoordinates.x;
 			var y = molecule.startCoordinates.y;
 			// xBuffer determines spacing between one atom and next atom in molecule
@@ -151,155 +150,34 @@ var sketchReaction = function(p) {
 			var atomWidth = 50;
 			var atomHeight = 50;
 
+			this.x = molecule.startCoordinates.x;
+			this.y = molecule.startCoordinates.y;
+
+			this.xBuffer = 45;
+			this.yBuffer = 60;
+			this.atomWidth = 50;
+			this.atomHeight = 50;
+
 			// Store colors that are needed for each element in array
 			var elementColorArray = [];
+			this.elementColorArray = [];
 			molecule.composition.forEach(function(element){
-				elementColorArray.push(elementColors.getElementColor(element))
+				elementColorArray.push(elementColors.getElementColor(element));
+				this.elementColorArray.push(elementColors.getElementColor(element));
 			})
 
 			switch(molecule.shape) {
 				case "linear":
-					// Erase previous molecules by drawing circles that share color with background
-					for (i=0; i <= molecule.lastNumber; i++) {
-						molecule.composition.forEach(function(element,j) {
-							p.stroke(backgroundCanvasDefault);
-							p.fill(backgroundCanvasDefault);
-							ellipseTemp = p.ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);
-						});
-					}
-
-					for (i=0; i < molecule.currentNumber; i++) {
-						// draw one of the molecule
-						molecule.composition.forEach(function(element, j){
-							console.log(element);
-							p.noStroke();
-							p.fill(elementColorArray[j]);
-							p.ellipse(x + j * xBuffer, y + i * yBuffer, atomWidth, atomHeight);
-							p.stroke(0);
-							p.fill(255);
-							p.textFont("Helvetica", 20, 30);
-							p.textAlign(p.CENTER, p.CENTER);
-							p.textSize(16);
-							p.text(element, x + (j * xBuffer) - atomWidth/2, y - atomHeight/2 + i* yBuffer, atomWidth, atomHeight);
-							molecule.lastNumber = i;
-						});
-					}
+					sketchMoleculeShape.linear.call(this, p, molecule);
 					break;
 				case "trigonal-pyrimidal":
-					p.fill(backgroundCanvasDefault);
-					p.stroke(backgroundCanvasDefault);
-					p.rect(x ,y - 22, 100, p.windowHeight);
-					// First element in array is central atom
-					for (i=0; i<molecule.currentNumber; i++) {
-						// Defines how much each molecule should be separated from one below it
-						var verticalShift = i * yBuffer * 2;
-						p.noStroke();
-						p.textFont("Helvetica", 20, 30);
-						p.textAlign(p.CENTER, p.CENTER);
-
-						// Assume surrounding atoms are smaller
-						// Top left atom
-						p.fill(elementColorArray[1]);
-						p.ellipse(x + 25, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
-						p.fill(0);
-						p.text(molecule.composition[1], x + 5, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-
-						// Top right atom
-						p.fill(elementColorArray[2]);
-						p.ellipse(x + 75, y + verticalShift, atomWidth/1.3 ,atomHeight/1.3);
-						p.fill(0);
-						p.text(molecule.composition[2], x + 60, y - 22 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-
-						// Bottom atom
-						p.fill(elementColorArray[3]);
-						p.ellipse(x + 50, y + 50 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-						p.fill(0);
-						p.text(molecule.composition[3], x + 35, y + 40 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-
-						// Central atom
-						p.fill(elementColorArray[0]);
-						p.ellipse(x + 50, y + 20 + verticalShift, atomWidth, atomHeight);
-						p.fill(255);
-						p.text(molecule.composition[0], x + 28, y - 4 + verticalShift, atomWidth, atomHeight);
-					}
+					sketchMoleculeShape.trigonalPyrimidal.call(this, p, molecule);
 					break;
 				case "tetrahedral":
-					p.fill(backgroundCanvasDefault);
-					p.stroke(backgroundCanvasDefault);
-					p.rect(x - 10, y - 40, 120, p.windowHeight);
-
-					for (i=0; i<molecule.currentNumber; i++) {
-						// Defines how much each molecule should be separated from one below it
-						var verticalShift = i * yBuffer * 2.2;
-						p.noStroke();
-						p.textFont("Helvetica", 20, 30);
-						p.textAlign(p.CENTER, p.CENTER);
-
-						// Assume surrounding atoms are smaller
-						// Top atom
-						p.fill(elementColorArray[1]);
-						p.ellipse(x + 50, y - 20 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-						p.fill(0);
-						p.text(molecule.composition[1], x + 35, y - 40 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-
-						// Bottom atom
-						p.fill(elementColorArray[2]);
-						p.ellipse(x + 50, y + 55 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-						p.fill(0);
-						p.text(molecule.composition[2], x + 35, y + 42 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-
-						// Left atom
-						p.fill(elementColorArray[3]);
-						p.ellipse(x + 15, y + 35 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-						p.fill(0);
-						p.text(molecule.composition[3], x, y + 15 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-
-						// Right atom
-						p.fill(elementColorArray[4]);
-						p.ellipse(x + 85, y + 35 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-						p.fill(0);
-						p.text(molecule.composition[3], x + 70, y + 15 + verticalShift, atomWidth/1.3, atomHeight/1.3);
-
-						// Central atom
-						p.fill(elementColorArray[0]);
-						p.ellipse(x + 50, y + 20 + verticalShift, atomWidth, atomHeight);
-						p.fill(255);
-						p.text(molecule.composition[0], x + 28, y - 4 + verticalShift, atomWidth, atomHeight);
-					}
+					sketchMoleculeShape.tetrahedral.call(this, p, molecule);
 					break;
 				case "bent":
-					p.fill(backgroundCanvasDefault);
-					p.stroke(backgroundCanvasDefault);
-					p.rect(x - 10, y - 40, 120, p.windowHeight);
-
-					for (i=0; i < molecule.currentNumber; i++) {
-						// Defines how much each molecule should be separated from one below it
-						var verticalShift = i * yBuffer * 2.2;
-						p.noStroke();
-						p.textFont("Helvetica", 20, 30);
-						p.textAlign(p.CENTER, p.CENTER);
-
-						molecule.composition.forEach(function(element, j){
-							// Left atom
-							p.fill(elementColorArray[1]);
-							p.ellipse(x + 10, y + 40 + verticalShift, atomWidth, atomHeight);
-							p.fill(255);
-							p.text(molecule.composition[1], x - 12, y + 15 + verticalShift, atomWidth, atomHeight);
-
-							// Right atom
-							// Left atom
-							p.fill(elementColorArray[1]);
-							p.ellipse(x + 90, y + 40 + verticalShift, atomWidth, atomHeight);
-							p.fill(255);
-							p.text(molecule.composition[1], x + 68, y + 15 + verticalShift, atomWidth, atomHeight);
-
-							// Central atom
-							p.fill(elementColorArray[0]);
-							p.ellipse(x + 50, y + 20 + verticalShift, atomWidth, atomHeight);
-							p.fill(255);
-							p.text(molecule.composition[0], x + 28, y - 4 + verticalShift, atomWidth, atomHeight);
-						});
-					}
+					sketchMoleculeShape.bent.call(this, p, molecule);
 					break;
 			}
 			molecule.active = false;
@@ -367,12 +245,11 @@ var sketchReaction = function(p) {
 		if (allEquations != null) {
 			// Draw reactants
 			thisReaction.reactantsArray.forEach(function(molecule) {
-				drawMolecule(molecule);
+				this.drawMolecule(molecule);
 			});
-
 			// Draw products
 			thisReaction.productsArray.forEach(function(molecule){
-				drawMolecule(molecule);
+				this.drawMolecule(molecule);
 			});
 		}
 	}
