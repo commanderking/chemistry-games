@@ -110,10 +110,10 @@
 				"composition": reactants[i].composition,
 				"shape" : reactants[i].shape,
 				"startCoordinates" : {
-					"x": i*200 + 100,
-					"y": 50
+					"x": i*170 + 50,
+					"y": 75
 				},
-				"active": false,
+				"drawNow": false,
 				"currentNumber" : 0,
 				"lastNumber" : 0
 			}
@@ -128,10 +128,10 @@
 				"composition": products[i].composition,
 				"shape" : products[i].shape,
 				"startCoordinates" : {
-					"x": drawIndex*200 + 100,
-					"y": 50
+					"x": drawIndex*180 + 30,
+					"y": 75
 				},
-				"active": false,
+				"drawNow": false,
 				"currentNumber" : 0,
 				"lastNumber" : 0
 			}
@@ -146,7 +146,7 @@
 		var that = this;
 		// p5 input executes the function when the input changes
 		input.input(function() {
-			that[moleculeID].active = true;
+			that[moleculeID].drawNow = true;
 			that[moleculeID].currentNumber = this.value();
 		});
 	};
@@ -160,12 +160,14 @@
 		this.indexOfReaction = 0;
 		this.allEquations = null;
 		this.numberOfEquations = 0;
+		// molecule spacing refers to pixels an entire molecule should take up along x;
+		this.moleculeSpacing = 162.5;
 	
 		var clearCanvas = function() {
 			canvas.background(backgroundCanvasDefault);
 		}
 	
-		renderMolecularFormula = function(moleculeObject, i, moleculeArray) {
+		var renderMolecularFormula = function(moleculeObject, i, moleculeArray) {
 			var reactantDOM = {};
 			p.createDiv('').parent('reaction').addClass('formulaWidth').id(moleculeObject.id);
 			reactantDOM[moleculeObject.id] = p.createInput('').addClass(moleculeObject.id + "input").parent(moleculeObject.id);
@@ -181,16 +183,51 @@
 			thisReaction.reactantsArray.forEach(renderMolecularFormula);
 			p.createSpan('->').addClass('equals').parent('reaction');
 			thisReaction.productsArray.forEach(renderMolecularFormula);
-			p.createButton('Submit').mousePressed(submitAnswer).parent('reaction')
+		}
+	
+		var renderButtons = function() {
+			p.createButton('Submit').mousePressed(submitAnswer).parent('buttons')
 				.addClass('btn btn-sm btn-info');
 			p.createSpan('<br>').parent('reaction');
-			p.createButton('<').mousePressed(moveBackOneEquation).parent('reaction').addClass('btn btn-sm');
-			p.createButton('>').mousePressed(moveForwardOneEquation).parent('reaction').addClass('btn btn-sm');
+			p.createButton('<').mousePressed(moveBackOneEquation).parent('buttons').addClass('btn btn-sm');
+			p.createButton('>').mousePressed(moveForwardOneEquation).parent('buttons').addClass('btn btn-sm');
+		}
+	
+	
+		var drawReactantProductBorder = function() {
+			p.stroke(50);
+			p.strokeWeight(4);
+			p.fill(255);
+			p.rect(0,
+						0,
+						thisReaction.reactantsArray.length * this.moleculeSpacing + 10,
+						p.windowHeight);
+			p.textSize(16);
+			p.strokeWeight(1);
+			p.fill(5);
+			p.text("Reactants", 10, 10, 100, 50)
+	
+			p.strokeWeight(4);
+			p.fill(255);
+			p.rect(thisReaction.reactantsArray.length * this.moleculeSpacing + 10,
+						0,
+						thisReaction.productsArray.length * 170.5 + 20,
+						p.windowHeight);
+			p.strokeWeight(1);
+			p.fill(50);
+			p.text("Products", thisReaction.reactantsArray.length * this.moleculeSpacing + 20,
+						10, 100, 50)
+		}
+	
+		var renderNewEquation = function() {
+			renderChemicalEquation();
+			renderButtons();
+			drawReactantProductBorder();
 		}
 	
 		// Draw atom or molecule
 		this.drawMolecule = function(molecule) {
-			if (molecule.active === true) {
+			if (molecule.drawNow === true) {
 				this.x = molecule.startCoordinates.x;
 				this.y = molecule.startCoordinates.y;
 	
@@ -221,7 +258,8 @@
 						sketchMoleculeShape.bent.call(this, p, molecule);
 						break;
 				}
-				molecule.active = false;
+				// Stop drawing
+				molecule.drawNow = false;
 			}
 		};
 	
@@ -234,7 +272,7 @@
 				console.log(that.indexOfReaction);
 	
 				thisReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
-				renderChemicalEquation();
+				renderNewEquation();
 			}
 		};
 		var moveBackOneEquation = function() {
@@ -243,7 +281,7 @@
 				p.removeElements();
 				that.indexOfReaction--;
 				thisReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
-				renderChemicalEquation();
+				renderNewEquation();
 			}
 		}
 	
@@ -280,7 +318,7 @@
 				that.numberOfEquations = that.allEquations.equations.length;
 				var equation = that.allEquations.equations[that.indexOfReaction];
 				thisReaction = new Reaction(equation);
-				renderChemicalEquation();
+				renderNewEquation();
 			})
 		}
 	
@@ -62416,7 +62454,7 @@
 	
 	    for (i=0; i < molecule.currentNumber; i++) {
 	      // Defines how much each molecule should be separated from one below it
-	      var verticalShift = i * yBuffer * 2.2;
+	      var verticalShift = i * this.yBuffer * 1.5;
 	      p.noStroke();
 	      p.textFont("Helvetica", 20, 30);
 	      p.textAlign(p.CENTER, p.CENTER);
@@ -62450,7 +62488,7 @@
 	    // First element in array is central atom
 	    for (i=0; i<molecule.currentNumber; i++) {
 	      // Defines how much each molecule should be separated from one below it
-	      var verticalShift = i * yBuffer * 2;
+	      var verticalShift = i * this.yBuffer * 2;
 	      p.noStroke();
 	      p.textFont("Helvetica", 20, 30);
 	      p.textAlign(p.CENTER, p.CENTER);
@@ -62514,7 +62552,7 @@
 	
 	    for (i=0; i<molecule.currentNumber; i++) {
 	      // Defines how much each molecule should be separated from one below it
-	      var verticalShift = i * yBuffer * 2.2;
+	      var verticalShift = i * this.yBuffer * 2.2;
 	      p.noStroke();
 	      p.textFont("Helvetica", 20, 30);
 	      p.textAlign(p.CENTER, p.CENTER);

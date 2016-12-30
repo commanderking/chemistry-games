@@ -43,7 +43,7 @@ module.exports = {
 
     for (i=0; i < molecule.currentNumber; i++) {
       // Defines how much each molecule should be separated from one below it
-      var verticalShift = i * yBuffer * 2.2;
+      var verticalShift = i * this.yBuffer * 1.5;
       p.noStroke();
       p.textFont("Helvetica", 20, 30);
       p.textAlign(p.CENTER, p.CENTER);
@@ -77,7 +77,7 @@ module.exports = {
     // First element in array is central atom
     for (i=0; i<molecule.currentNumber; i++) {
       // Defines how much each molecule should be separated from one below it
-      var verticalShift = i * yBuffer * 2;
+      var verticalShift = i * this.yBuffer * 2;
       p.noStroke();
       p.textFont("Helvetica", 20, 30);
       p.textAlign(p.CENTER, p.CENTER);
@@ -141,7 +141,7 @@ module.exports = {
 
     for (i=0; i<molecule.currentNumber; i++) {
       // Defines how much each molecule should be separated from one below it
-      var verticalShift = i * yBuffer * 2.2;
+      var verticalShift = i * this.yBuffer * 2.2;
       p.noStroke();
       p.textFont("Helvetica", 20, 30);
       p.textAlign(p.CENTER, p.CENTER);
