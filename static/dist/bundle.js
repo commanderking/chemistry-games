@@ -152,7 +152,6 @@
 	};
 	
 	elementColors.init();
-	var thisReaction;
 	var canvas;
 	
 	var sketchReaction = function(p) {
@@ -175,14 +174,16 @@
 			if (i < moleculeArray.length - 1) {
 				p.createSpan(' +').addClass('plusSign').parent('reaction');
 			}
-			thisReaction.displayReactant(reactantDOM[moleculeObject.id], moleculeObject.id);
+			that.currentReaction.displayReactant(reactantDOM[moleculeObject.id], moleculeObject.id);
 		};
 	
 		var renderChemicalEquation = function() {
 			// Render equation (reactants, then products);
-			thisReaction.reactantsArray.forEach(renderMolecularFormula);
+			console.log("hey");
+			console.log(that.currentReaction);
+			that.currentReaction.reactantsArray.forEach(renderMolecularFormula);
 			p.createSpan('->').addClass('equals').parent('reaction');
-			thisReaction.productsArray.forEach(renderMolecularFormula);
+			that.currentReaction.productsArray.forEach(renderMolecularFormula);
 		}
 	
 		var renderButtons = function() {
@@ -200,7 +201,7 @@
 			p.fill(255);
 			p.rect(0,
 						0,
-						thisReaction.reactantsArray.length * this.moleculeSpacing + 10,
+						that.currentReaction.reactantsArray.length * this.moleculeSpacing + 10,
 						p.windowHeight);
 			p.textSize(16);
 			p.strokeWeight(1);
@@ -209,13 +210,13 @@
 	
 			p.strokeWeight(4);
 			p.fill(255);
-			p.rect(thisReaction.reactantsArray.length * this.moleculeSpacing + 10,
+			p.rect(that.currentReaction.reactantsArray.length * this.moleculeSpacing + 10,
 						0,
-						thisReaction.productsArray.length * 170.5 + 20,
+						that.currentReaction.productsArray.length * 170.5 + 20,
 						p.windowHeight);
 			p.strokeWeight(1);
 			p.fill(50);
-			p.text("Products", thisReaction.reactantsArray.length * this.moleculeSpacing + 20,
+			p.text("Products", that.currentReaction.reactantsArray.length * this.moleculeSpacing + 20,
 						10, 100, 50)
 		}
 	
@@ -271,7 +272,7 @@
 				that.indexOfReaction++;
 				console.log(that.indexOfReaction);
 	
-				thisReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
+				that.currentReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
 				renderNewEquation();
 			}
 		};
@@ -280,7 +281,7 @@
 				clearCanvas();
 				p.removeElements();
 				that.indexOfReaction--;
-				thisReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
+				that.currentReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
 				renderNewEquation();
 			}
 		}
@@ -289,10 +290,10 @@
 			console.log("answer submitted");
 	
 			var userAnswer = [];
-			thisReaction.reactantsArray.forEach(function(moleculeObject){
+			that.currentReaction.reactantsArray.forEach(function(moleculeObject){
 				userAnswer.push(parseInt(moleculeObject.currentNumber));
 			});
-			thisReaction.productsArray.forEach(function(moleculeObject){
+			that.currentReaction.productsArray.forEach(function(moleculeObject){
 				userAnswer.push(parseInt(moleculeObject.currentNumber));
 			});
 	
@@ -302,22 +303,24 @@
 				return numberOfElement/min;
 			});
 	
-			if(_.isEqual(lowestRatioArray, thisReaction.correctRatio)) {
+			if(_.isEqual(lowestRatioArray, that.currentReaction.correctRatio)) {
 				console.log("You're correct");
-				thisReaction.reactionBalanced = true;
+				that.currentReaction.reactionBalanced = true;
 				// move on to the next reaction
 				moveForwardOneEquation();
 			}
 		};
 	
 		p.setup = function() {
+			console.log("setup");
 			canvas = p.createCanvas(p.windowWidth, p.windowHeight);
 			canvas.background(backgroundCanvasDefault);
 			getReactionsJSON().then(function(returnData){
 				that.allEquations = returnData;
 				that.numberOfEquations = that.allEquations.equations.length;
 				var equation = that.allEquations.equations[that.indexOfReaction];
-				thisReaction = new Reaction(equation);
+				that.currentReaction = new Reaction(equation);
+				console.log(that.currentReaction);
 				renderNewEquation();
 			})
 		}
@@ -325,11 +328,13 @@
 		p.draw = function() {
 			if (allEquations != null) {
 				// Draw reactants
-				thisReaction.reactantsArray.forEach(function(molecule) {
+				console.log("drawing");
+				console.log(that.currentReaction);
+				that.currentReaction.reactantsArray.forEach(function(molecule) {
 					this.drawMolecule(molecule);
 				});
 				// Draw products
-				thisReaction.productsArray.forEach(function(molecule){
+				that.currentReaction.productsArray.forEach(function(molecule){
 					this.drawMolecule(molecule);
 				});
 			}
