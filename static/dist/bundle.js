@@ -179,8 +179,6 @@
 	
 		var renderChemicalEquation = function() {
 			// Render equation (reactants, then products);
-			console.log("hey");
-			console.log(that.currentReaction);
 			that.currentReaction.reactantsArray.forEach(renderMolecularFormula);
 			p.createSpan('->').addClass('equals').parent('reaction');
 			that.currentReaction.productsArray.forEach(renderMolecularFormula);
@@ -268,10 +266,7 @@
 			if (that.indexOfReaction < that.numberOfEquations - 1) {
 				clearCanvas();
 				p.removeElements();
-				console.log(that.indexOfReaction);
 				that.indexOfReaction++;
-				console.log(that.indexOfReaction);
-	
 				that.currentReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
 				renderNewEquation();
 			}
@@ -312,7 +307,6 @@
 		};
 	
 		p.setup = function() {
-			console.log("setup");
 			canvas = p.createCanvas(p.windowWidth, p.windowHeight);
 			canvas.background(backgroundCanvasDefault);
 			getReactionsJSON().then(function(returnData){
@@ -320,7 +314,6 @@
 				that.numberOfEquations = that.allEquations.equations.length;
 				var equation = that.allEquations.equations[that.indexOfReaction];
 				that.currentReaction = new Reaction(equation);
-				console.log(that.currentReaction);
 				renderNewEquation();
 			})
 		}
@@ -328,8 +321,6 @@
 		p.draw = function() {
 			if (allEquations != null) {
 				// Draw reactants
-				console.log("drawing");
-				console.log(that.currentReaction);
 				that.currentReaction.reactantsArray.forEach(function(molecule) {
 					this.drawMolecule(molecule);
 				});
