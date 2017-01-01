@@ -78,29 +78,6 @@
     {
       "reactants" : [
         {
-          "formula" : "N₂",
-          "shape" : "linear",
-          "composition" : ["N", "N"]
-        },
-        {
-          "formula" : "H₂",
-          "shape" : "linear",
-          "composition" : ["H", "H"]
-        }
-      ],
-      "products" :
-      [
-        {
-          "formula" : "NH₃",
-          "shape" : "trigonal-pyrimidal",
-          "composition" : ["N", "H", "H", "H"]
-        }
-      ],
-      "correctRatio" : [1,3,2]
-    },
-    {
-      "reactants" : [
-        {
           "formula" : "H₂O",
           "shape" : "bent",
           "composition" : ["O", "H", "H"]
