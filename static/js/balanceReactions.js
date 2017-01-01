@@ -103,7 +103,6 @@ Reaction.prototype.displayReactant = function(input, moleculeID) {
 };
 
 elementColors.init();
-var canvas;
 
 var sketchReaction = function(p) {
 	var that = this;
@@ -112,15 +111,16 @@ var sketchReaction = function(p) {
 	this.numberOfEquations = 0;
 	// molecule spacing refers to pixels an entire molecule should take up along x;
 	this.moleculeSpacing = 162.5;
+	this.canvas = null;
 
 	var clearCanvas = function() {
-		canvas.background(backgroundCanvasDefault);
+		that.canvas.background(backgroundCanvasDefault);
 	}
 
 	var renderMolecularFormula = function(moleculeObject, i, moleculeArray) {
 		var reactantDOM = {};
 		p.createDiv('').parent('reaction').addClass('formulaWidth').id(moleculeObject.id);
-		reactantDOM[moleculeObject.id] = p.createInput('').addClass(moleculeObject.id + "input").parent(moleculeObject.id);
+		reactantDOM[moleculeObject.id] = p.createInput('').addClass(moleculeObject.id + "input coefficientInput").parent(moleculeObject.id);
 		p.createSpan(moleculeObject.formula).addClass(moleculeObject.id + "formula").parent(moleculeObject.id);
 		if (i < moleculeArray.length - 1) {
 			p.createSpan(' +').addClass('plusSign').parent('reaction');
@@ -258,8 +258,8 @@ var sketchReaction = function(p) {
 	};
 
 	p.setup = function() {
-		canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-		canvas.background(backgroundCanvasDefault);
+		that.canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+		that.canvas.background(backgroundCanvasDefault);
 		getReactionsJSON().then(function(returnData){
 			that.allEquations = returnData;
 			that.numberOfEquations = that.allEquations.equations.length;
