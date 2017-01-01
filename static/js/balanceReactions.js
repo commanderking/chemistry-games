@@ -120,12 +120,34 @@ var sketchReaction = function(p) {
 	var renderMolecularFormula = function(moleculeObject, i, moleculeArray) {
 		var reactantDOM = {};
 		p.createDiv('').parent('reaction').addClass('formulaWidth').id(moleculeObject.id);
-		reactantDOM[moleculeObject.id] = p.createInput('').addClass(moleculeObject.id + "input coefficientInput").parent(moleculeObject.id);
+		reactantDOM[moleculeObject.id] = p.createInput('')
+			.addClass(moleculeObject.id + "input coefficientInput")
+			.parent(moleculeObject.id)
+			.attribute('type', 'number')
+			.attribute('min', '0')
+			.attribute('max' '10')
+			.attribute('onkeypress', 'return event.charCode >= 48 && event.charCode <= 57');
 		p.createSpan(moleculeObject.formula).addClass(moleculeObject.id + "formula").parent(moleculeObject.id);
 		if (i < moleculeArray.length - 1) {
 			p.createSpan(' +').addClass('plusSign').parent('reaction');
 		}
 		that.currentReaction.displayReactant(reactantDOM[moleculeObject.id], moleculeObject.id);
+
+		$(".coefficientInput").keydown(function (e) {
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+             // Allow: Ctrl+A, Command+A
+            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+             // Allow: home, end, left, right, down, up
+            (e.keyCode >= 35 && e.keyCode <= 40)) {
+                 // let it happen, don't do anything
+                 return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
 	};
 
 	var renderChemicalEquation = function() {

@@ -169,7 +169,11 @@
 		var renderMolecularFormula = function(moleculeObject, i, moleculeArray) {
 			var reactantDOM = {};
 			p.createDiv('').parent('reaction').addClass('formulaWidth').id(moleculeObject.id);
-			reactantDOM[moleculeObject.id] = p.createInput('').addClass(moleculeObject.id + "input coefficientInput").parent(moleculeObject.id);
+			reactantDOM[moleculeObject.id] = p.createInput('')
+				.addClass(moleculeObject.id + "input coefficientInput")
+				.parent(moleculeObject.id)
+				.attribute('type', 'number')
+				.attribute('onkeypress', 'return event.charCode >= 48 && event.charCode <= 57');
 			p.createSpan(moleculeObject.formula).addClass(moleculeObject.id + "formula").parent(moleculeObject.id);
 			if (i < moleculeArray.length - 1) {
 				p.createSpan(' +').addClass('plusSign').parent('reaction');
