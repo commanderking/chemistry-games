@@ -27,7 +27,8 @@
           "composition" : ["O", "H", "H"]
         }
       ],
-      "correctRatio" : [1,2,1,2]
+      "correctRatio" : [1,2,1,2],
+      "correct" : false
     },
     {
       "reactants" :[
@@ -50,7 +51,8 @@
           "composition" : ["Mg", "O"]
         }
       ],
-      "correctRatio" : [2,1,2]
+      "correctRatio" : [2,1,2],
+      "correct" : false
     },
     {
       "reactants" : [
@@ -73,7 +75,8 @@
           "composition" : ["N", "H", "H", "H"]
         }
       ],
-      "correctRatio" : [1,3,2]
+      "correctRatio" : [1,3,2],
+      "correct": false
     },
     {
       "reactants" : [
@@ -96,7 +99,8 @@
           "composition" : ["O", "O"]
         }
       ],
-      "correctRatio" : [2,2,1]
+      "correctRatio" : [2,2,1],
+      "correct" : false
     }
   ]
 }

@@ -125,31 +125,14 @@ var sketchReaction = function(p) {
 			.parent(moleculeObject.id)
 			.attribute('type', 'number')
 			.attribute('min', '0')
-			.attribute('max' '10')
+			.attribute('max', '10')
 			.attribute('onkeypress', 'return event.charCode >= 48 && event.charCode <= 57');
 		p.createSpan(moleculeObject.formula).addClass(moleculeObject.id + "formula").parent(moleculeObject.id);
 		if (i < moleculeArray.length - 1) {
 			p.createSpan(' +').addClass('plusSign').parent('reaction');
 		}
 		that.currentReaction.displayReactant(reactantDOM[moleculeObject.id], moleculeObject.id);
-
-		$(".coefficientInput").keydown(function (e) {
-        // Allow: backspace, delete, tab, escape, enter and .
-        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
-             // Allow: Ctrl+A, Command+A
-            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
-             // Allow: home, end, left, right, down, up
-            (e.keyCode >= 35 && e.keyCode <= 40)) {
-                 // let it happen, don't do anything
-                 return;
-        }
-        // Ensure that it is a number and stop the keypress
-        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-            e.preventDefault();
-        }
-    });
-	};
-
+	}
 	var renderChemicalEquation = function() {
 		// Render equation (reactants, then products);
 		that.currentReaction.reactantsArray.forEach(renderMolecularFormula);
@@ -158,13 +141,12 @@ var sketchReaction = function(p) {
 	}
 
 	var renderButtons = function() {
+		p.createButton('<').mousePressed(moveBackOneEquation).parent('buttons').addClass('btn btn-sm');
 		p.createButton('Submit').mousePressed(submitAnswer).parent('buttons')
 			.addClass('btn btn-sm btn-info');
 		p.createSpan('<br>').parent('reaction');
-		p.createButton('<').mousePressed(moveBackOneEquation).parent('buttons').addClass('btn btn-sm');
 		p.createButton('>').mousePressed(moveForwardOneEquation).parent('buttons').addClass('btn btn-sm');
 	}
-
 
 	var drawReactantProductBorder = function() {
 		p.stroke(50);
@@ -192,9 +174,22 @@ var sketchReaction = function(p) {
 	}
 
 	var renderNewEquation = function() {
-		renderChemicalEquation();
-		renderButtons();
-		drawReactantProductBorder();
+		console.log(that.currentReaction.reactionBalanced)
+		if (!that.currentReaction.reactionBalanced) {
+			$('#reaction').removeClass('correctGreen').removeClass('wrongRed');
+			renderChemicalEquation();
+			renderButtons();
+			drawReactantProductBorder();
+		}
+	}
+
+	var renderCorrectAnswer = function() {
+		clearCanvas();
+		$('#reaction').addClass('correctGreen');
+	}
+
+	var renderWrongAnswer = function() {
+		$('#reaction').addClass('wrongRed');
 	}
 
 	// Draw atom or molecule
@@ -272,10 +267,10 @@ var sketchReaction = function(p) {
 		});
 
 		if(_.isEqual(lowestRatioArray, that.currentReaction.correctRatio)) {
-			console.log("You're correct");
 			that.currentReaction.reactionBalanced = true;
-			// move on to the next reaction
-			moveForwardOneEquation();
+			renderCorrectAnswer();
+		} else {
+			renderWrongAnswer();
 		}
 	};
 
@@ -292,7 +287,7 @@ var sketchReaction = function(p) {
 	}
 
 	p.draw = function() {
-		if (allEquations != null) {
+		if (that.allEquations != null) {
 			// Draw reactants
 			that.currentReaction.reactantsArray.forEach(function(molecule) {
 				this.drawMolecule(molecule);

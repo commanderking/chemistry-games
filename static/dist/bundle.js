@@ -173,14 +173,15 @@
 				.addClass(moleculeObject.id + "input coefficientInput")
 				.parent(moleculeObject.id)
 				.attribute('type', 'number')
+				.attribute('min', '0')
+				.attribute('max', '10')
 				.attribute('onkeypress', 'return event.charCode >= 48 && event.charCode <= 57');
 			p.createSpan(moleculeObject.formula).addClass(moleculeObject.id + "formula").parent(moleculeObject.id);
 			if (i < moleculeArray.length - 1) {
 				p.createSpan(' +').addClass('plusSign').parent('reaction');
 			}
 			that.currentReaction.displayReactant(reactantDOM[moleculeObject.id], moleculeObject.id);
-		};
-	
+		}
 		var renderChemicalEquation = function() {
 			// Render equation (reactants, then products);
 			that.currentReaction.reactantsArray.forEach(renderMolecularFormula);
@@ -189,13 +190,12 @@
 		}
 	
 		var renderButtons = function() {
+			p.createButton('<').mousePressed(moveBackOneEquation).parent('buttons').addClass('btn btn-sm');
 			p.createButton('Submit').mousePressed(submitAnswer).parent('buttons')
 				.addClass('btn btn-sm btn-info');
 			p.createSpan('<br>').parent('reaction');
-			p.createButton('<').mousePressed(moveBackOneEquation).parent('buttons').addClass('btn btn-sm');
 			p.createButton('>').mousePressed(moveForwardOneEquation).parent('buttons').addClass('btn btn-sm');
 		}
-	
 	
 		var drawReactantProductBorder = function() {
 			p.stroke(50);
@@ -223,9 +223,22 @@
 		}
 	
 		var renderNewEquation = function() {
-			renderChemicalEquation();
-			renderButtons();
-			drawReactantProductBorder();
+			console.log(that.currentReaction.reactionBalanced)
+			if (!that.currentReaction.reactionBalanced) {
+				$('#reaction').removeClass('correctGreen').removeClass('wrongRed');
+				renderChemicalEquation();
+				renderButtons();
+				drawReactantProductBorder();
+			}
+		}
+	
+		var renderCorrectAnswer = function() {
+			clearCanvas();
+			$('#reaction').addClass('correctGreen');
+		}
+	
+		var renderWrongAnswer = function() {
+			$('#reaction').addClass('wrongRed');
 		}
 	
 		// Draw atom or molecule
@@ -303,10 +316,10 @@
 			});
 	
 			if(_.isEqual(lowestRatioArray, that.currentReaction.correctRatio)) {
-				console.log("You're correct");
 				that.currentReaction.reactionBalanced = true;
-				// move on to the next reaction
-				moveForwardOneEquation();
+				renderCorrectAnswer();
+			} else {
+				renderWrongAnswer();
 			}
 		};
 	
@@ -323,7 +336,7 @@
 		}
 	
 		p.draw = function() {
-			if (allEquations != null) {
+			if (that.allEquations != null) {
 				// Draw reactants
 				that.currentReaction.reactantsArray.forEach(function(molecule) {
 					this.drawMolecule(molecule);
@@ -62450,7 +62463,7 @@
 	  bent: function(p, molecule) {
 	    p.fill(canvasBGColor);
 	    p.stroke(canvasBGColor);
-	    p.rect(this.x - 10, this.y - 40, 120, p.windowHeight);
+	    p.rect(this.x - 30, this.y - 20, 150, p.windowHeight);
 	
 	    for (i=0; i < molecule.currentNumber; i++) {
 	      // Defines how much each molecule should be separated from one below it
@@ -62484,7 +62497,7 @@
 	  trigonalPyrimidal: function(p, molecule) {
 	    p.fill(canvasBGColor);
 	    p.stroke(canvasBGColor);
-	    p.rect(this.x ,this.y - 22, 100, p.windowHeight);
+	    p.rect(this.x, this.y - 22, 100, p.windowHeight);
 	    // First element in array is central atom
 	    for (i=0; i<molecule.currentNumber; i++) {
 	      // Defines how much each molecule should be separated from one below it

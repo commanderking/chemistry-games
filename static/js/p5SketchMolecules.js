@@ -39,7 +39,7 @@ module.exports = {
   bent: function(p, molecule) {
     p.fill(canvasBGColor);
     p.stroke(canvasBGColor);
-    p.rect(this.x - 10, this.y - 40, 120, p.windowHeight);
+    p.rect(this.x - 30, this.y - 20, 150, p.windowHeight);
 
     for (i=0; i < molecule.currentNumber; i++) {
       // Defines how much each molecule should be separated from one below it
@@ -73,7 +73,7 @@ module.exports = {
   trigonalPyrimidal: function(p, molecule) {
     p.fill(canvasBGColor);
     p.stroke(canvasBGColor);
-    p.rect(this.x ,this.y - 22, 100, p.windowHeight);
+    p.rect(this.x, this.y - 22, 100, p.windowHeight);
     // First element in array is central atom
     for (i=0; i<molecule.currentNumber; i++) {
       // Defines how much each molecule should be separated from one below it

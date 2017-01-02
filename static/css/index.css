@@ -5,12 +5,23 @@ body {
 /*Includes written chemical equation and submit button for now*/
 .equationDiv {
 	font-size: 16px;
-	margin-bottom: 10px;
+	width: 700px;
+}
+
+.correctGreen {
+	transition: background-color 2s ease;
+	background-color: lightgreen;
+}
+
+.wrongRed {
+	transition: background-color 1.5s ease;
+	background-color: #ff6961;
 }
 
 /* Refers to the written chemical equation*/
 #reaction {
 	font-size: 20px;
+	padding: 1em;
 }
 
 #reaction input {
@@ -36,4 +47,9 @@ body {
 #reaction div.visible {
 	display: inline-block;
 	width: 200px;
+}
+
+#buttons {
+	text-align: center;
+	padding: 1em;
 }
