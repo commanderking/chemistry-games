@@ -8,13 +8,17 @@ body {
 	width: 700px;
 }
 
+.equationDiv h1 {
+	text-align: center;
+}
+
 .correctGreen {
-	transition: background-color 2s ease;
+	transition: background-color 1s ease;
 	background-color: lightgreen;
 }
 
 .wrongRed {
-	transition: background-color 1.5s ease;
+	transition: background-color 1s ease;
 	background-color: #ff6961;
 }
 
@@ -49,7 +53,12 @@ body {
 	width: 200px;
 }
 
-#buttons {
+#buttons, #buttonsNext {
 	text-align: center;
-	padding: 1em;
+	padding: 0em 1em 1em 1em;
+}
+
+#buttonsNext .successText {
+	padding: 0.5em;
+	font-size: 1.5em;
 }

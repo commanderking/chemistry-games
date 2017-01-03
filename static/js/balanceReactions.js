@@ -17,7 +17,6 @@ var elementColors = {
 	colorData: {},
 	init: function() {
 		$.getJSON("./static/json/elementColors.json").done((data) => {
-			console.log(data);
 			this.colorData = data;
 			return data;
 		});
@@ -112,6 +111,9 @@ var sketchReaction = function(p) {
 	// molecule spacing refers to pixels an entire molecule should take up along x;
 	this.moleculeSpacing = 162.5;
 	this.canvas = null;
+	this.canvasHeight = p.windowHeight < 500 ? 500 : p.windowHeight;
+
+	var equationDiv = $('.equationDiv');
 
 	var clearCanvas = function() {
 		that.canvas.background(backgroundCanvasDefault);
@@ -141,55 +143,75 @@ var sketchReaction = function(p) {
 	}
 
 	var renderButtons = function() {
-		p.createButton('<').mousePressed(moveBackOneEquation).parent('buttons').addClass('btn btn-sm');
-		p.createButton('Submit').mousePressed(submitAnswer).parent('buttons')
-			.addClass('btn btn-sm btn-info');
-		p.createSpan('<br>').parent('reaction');
-		p.createButton('>').mousePressed(moveForwardOneEquation).parent('buttons').addClass('btn btn-sm');
+		if (!equationIsBalanced()) {
+			$('#buttonsNext').hide();
+			$('#buttons').show();
+			p.createButton('<').mousePressed(moveBackOneEquation).parent('buttons').addClass('btn');
+			p.createButton('Submit').mousePressed(submitAnswer).parent('buttons')
+				.addClass('btn btn-info');
+			p.createSpan('<br>').parent('reaction');
+			p.createButton('>').mousePressed(moveForwardOneEquation).parent('buttons').addClass('btn');
+		} else {
+			$('#buttons').hide();
+			$('#buttonsNext').show();
+			p.createDiv('Well done! <br>').addClass("successText").parent('buttonsNext');
+			p.createButton('Next').mousePressed(moveForwardOneEquation).parent('buttonsNext')
+				.addClass('btn btn-lg btn-info');
+		}
 	}
 
 	var drawReactantProductBorder = function() {
-		p.stroke(50);
-		p.strokeWeight(4);
-		p.fill(255);
-		p.rect(0,
-					0,
-					that.currentReaction.reactantsArray.length * this.moleculeSpacing + 10,
-					p.windowHeight);
-		p.textSize(16);
-		p.strokeWeight(1);
-		p.fill(5);
-		p.text("Reactants", 10, 10, 100, 50)
+		if (equationIsBalanced()){
 
-		p.strokeWeight(4);
-		p.fill(255);
-		p.rect(that.currentReaction.reactantsArray.length * this.moleculeSpacing + 10,
-					0,
-					that.currentReaction.productsArray.length * 170.5 + 20,
-					p.windowHeight);
-		p.strokeWeight(1);
-		p.fill(50);
-		p.text("Products", that.currentReaction.reactantsArray.length * this.moleculeSpacing + 20,
-					10, 100, 50)
+		} else {
+			p.stroke(50);
+			p.strokeWeight(4);
+			p.fill(255);
+			p.rect(0,
+						0,
+						that.currentReaction.reactantsArray.length * this.moleculeSpacing + 10,
+						that.canvasHeight);
+			p.textSize(16);
+			p.strokeWeight(1);
+			p.fill(5);
+			p.text("Reactants", 10, 10, 100, 50)
+
+			p.strokeWeight(4);
+			p.fill(255);
+			p.rect(that.currentReaction.reactantsArray.length * this.moleculeSpacing + 10,
+						0,
+						that.currentReaction.productsArray.length * 170.5 + 20,
+						that.canvasHeight);
+			p.strokeWeight(1);
+			p.fill(50);
+			p.text("Products", that.currentReaction.reactantsArray.length * this.moleculeSpacing + 20,
+						10, 100, 50)
+		}
 	}
 
 	var renderNewEquation = function() {
-		console.log(that.currentReaction.reactionBalanced)
-		if (!that.currentReaction.reactionBalanced) {
-			$('#reaction').removeClass('correctGreen').removeClass('wrongRed');
-			renderChemicalEquation();
-			renderButtons();
-			drawReactantProductBorder();
-		}
+		clearCanvas();
+		p.removeElements();
+		equationDiv.removeClass('correctGreen').removeClass('wrongRed');
+		renderChemicalEquation();
+		renderButtons();
+		drawReactantProductBorder();
+	}
+
+	var equationIsBalanced = function() {
+		return that.allEquations.equations[that.indexOfReaction].balanced;
 	}
 
 	var renderCorrectAnswer = function() {
 		clearCanvas();
-		$('#reaction').addClass('correctGreen');
+		renderButtons();
+		equationDiv.removeClass('wrongRed');
+		equationDiv.addClass('correctGreen');
 	}
 
 	var renderWrongAnswer = function() {
-		$('#reaction').addClass('wrongRed');
+		equationDiv.removeClass('correctGreen');
+		equationDiv.addClass('wrongRed');
 	}
 
 	// Draw atom or molecule
@@ -232,8 +254,6 @@ var sketchReaction = function(p) {
 
 	var moveForwardOneEquation = function() {
 		if (that.indexOfReaction < that.numberOfEquations - 1) {
-			clearCanvas();
-			p.removeElements();
 			that.indexOfReaction++;
 			that.currentReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
 			renderNewEquation();
@@ -241,8 +261,6 @@ var sketchReaction = function(p) {
 	};
 	var moveBackOneEquation = function() {
 		if (that.indexOfReaction > 0) {
-			clearCanvas();
-			p.removeElements();
 			that.indexOfReaction--;
 			that.currentReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
 			renderNewEquation();
@@ -250,8 +268,6 @@ var sketchReaction = function(p) {
 	}
 
 	var submitAnswer = function() {
-		console.log("answer submitted");
-
 		var userAnswer = [];
 		that.currentReaction.reactantsArray.forEach(function(moleculeObject){
 			userAnswer.push(parseInt(moleculeObject.currentNumber));
@@ -267,7 +283,7 @@ var sketchReaction = function(p) {
 		});
 
 		if(_.isEqual(lowestRatioArray, that.currentReaction.correctRatio)) {
-			that.currentReaction.reactionBalanced = true;
+			that.allEquations.equations[that.indexOfReaction].balanced = true;
 			renderCorrectAnswer();
 		} else {
 			renderWrongAnswer();
@@ -275,7 +291,7 @@ var sketchReaction = function(p) {
 	};
 
 	p.setup = function() {
-		that.canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+		that.canvas = p.createCanvas(p.windowWidth, that.canvasHeight);
 		that.canvas.background(backgroundCanvasDefault);
 		getReactionsJSON().then(function(returnData){
 			that.allEquations = returnData;

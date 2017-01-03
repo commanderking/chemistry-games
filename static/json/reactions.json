@@ -28,7 +28,7 @@
         }
       ],
       "correctRatio" : [1,2,1,2],
-      "correct" : false
+      "balanced" : false
     },
     {
       "reactants" :[
@@ -52,7 +52,7 @@
         }
       ],
       "correctRatio" : [2,1,2],
-      "correct" : false
+      "balanced" : false
     },
     {
       "reactants" : [
@@ -76,7 +76,7 @@
         }
       ],
       "correctRatio" : [1,3,2],
-      "correct": false
+      "balanced": false
     },
     {
       "reactants" : [
@@ -100,7 +100,7 @@
         }
       ],
       "correctRatio" : [2,2,1],
-      "correct" : false
+      "balanced" : false
     }
   ]
 }
