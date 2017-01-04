@@ -63,8 +63,8 @@ var Reaction = function(equation) {
 				"x": i*170 + 50,
 				"y": 75
 			},
-			"drawNow": false,
-			"currentNumber" : 0,
+			"drawNow": true,
+			"currentNumber" : 1,
 			"lastNumber" : 0
 		}
 		this["r"+i] = reactant;
@@ -81,8 +81,8 @@ var Reaction = function(equation) {
 				"x": drawIndex*180 + 30,
 				"y": 75
 			},
-			"drawNow": false,
-			"currentNumber" : 0,
+			"drawNow": true,
+			"currentNumber" : 1,
 			"lastNumber" : 0
 		}
 		this["p"+i] = product;
@@ -107,8 +107,9 @@ var sketchReaction = function(p) {
 	var that = this;
 	this.indexOfReaction = 0;
 	this.allEquations = null;
+	this.currentReaction = null;
 	this.numberOfEquations = 0;
-	// molecule spacing refers to pixels an entire molecule should take up along x;
+	// molecule spacing refers to pixels one molecule should take up along x;
 	this.moleculeSpacing = 162.5;
 	this.canvas = null;
 	this.canvasHeight = p.windowHeight < 500 ? 500 : p.windowHeight;
@@ -121,8 +122,10 @@ var sketchReaction = function(p) {
 
 	var renderMolecularFormula = function(moleculeObject, i, moleculeArray) {
 		var reactantDOM = {};
+		var coefficient = equationIsBalanced() ? that.currentReaction.correctRatio[i] : '';
+		console.log(coefficient);
 		p.createDiv('').parent('reaction').addClass('formulaWidth').id(moleculeObject.id);
-		reactantDOM[moleculeObject.id] = p.createInput('')
+		reactantDOM[moleculeObject.id] = p.createInput(coefficient.toString())
 			.addClass(moleculeObject.id + "input coefficientInput")
 			.parent(moleculeObject.id)
 			.attribute('type', 'number')
@@ -146,16 +149,16 @@ var sketchReaction = function(p) {
 		if (!equationIsBalanced()) {
 			$('#buttonsNext').hide();
 			$('#buttons').show();
-			p.createButton('<').mousePressed(moveBackOneEquation).parent('buttons').addClass('btn');
+			p.createButton('<').mousePressed(previousEquation).parent('buttons').addClass('btn');
 			p.createButton('Submit').mousePressed(submitAnswer).parent('buttons')
 				.addClass('btn btn-info');
 			p.createSpan('<br>').parent('reaction');
-			p.createButton('>').mousePressed(moveForwardOneEquation).parent('buttons').addClass('btn');
+			p.createButton('>').mousePressed(nextEquation).parent('buttons').addClass('btn');
 		} else {
 			$('#buttons').hide();
 			$('#buttonsNext').show();
 			p.createDiv('Well done! <br>').addClass("successText").parent('buttonsNext');
-			p.createButton('Next').mousePressed(moveForwardOneEquation).parent('buttonsNext')
+			p.createButton('Next').mousePressed(nextEquation).parent('buttonsNext')
 				.addClass('btn btn-lg btn-info');
 		}
 	}
@@ -252,14 +255,14 @@ var sketchReaction = function(p) {
 		}
 	};
 
-	var moveForwardOneEquation = function() {
+	var nextEquation = function() {
 		if (that.indexOfReaction < that.numberOfEquations - 1) {
 			that.indexOfReaction++;
 			that.currentReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
 			renderNewEquation();
 		}
 	};
-	var moveBackOneEquation = function() {
+	var previousEquation = function() {
 		if (that.indexOfReaction > 0) {
 			that.indexOfReaction--;
 			that.currentReaction = new Reaction(that.allEquations.equations[that.indexOfReaction]);
