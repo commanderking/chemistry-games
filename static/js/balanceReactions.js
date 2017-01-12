@@ -122,6 +122,8 @@ var sketchReaction = function(p) {
 
 	var renderMolecularFormula = function(moleculeObject, i, moleculeArray) {
 		var reactantDOM = {};
+
+		// If reaction previously balanced, populate correct coefficients
 		var coefficient = equationIsBalanced() ? that.currentReaction.correctRatio[i] : '';
 		console.log(coefficient);
 		p.createDiv('').parent('reaction').addClass('formulaWidth').id(moleculeObject.id);
@@ -270,13 +272,28 @@ var sketchReaction = function(p) {
 		}
 	}
 
+	var parseCoefficient = function(userCoefficient) {
+		var parsedCoefficient = userCoefficient === "" ? 1 : parseInt(userCoefficient);
+		return parsedCoefficient;
+	}
+
 	var submitAnswer = function() {
 		var userAnswer = [];
+
 		that.currentReaction.reactantsArray.forEach(function(moleculeObject){
-			userAnswer.push(parseInt(moleculeObject.currentNumber));
+			console.log(moleculeObject.currentNumber);
+			// if user submits nothing as coefficient, submit 1
+			userAnswer.push(parseCoefficient(moleculeObject.currentNumber));
+			/*
+			if (moleculeObject.currentNumber === "") {
+				console.log("blank string");
+				userAnswer.push(1);
+			} else {
+				userAnswer.push(parseInt(moleculeObject.currentNumber));
+			}*/
 		});
 		that.currentReaction.productsArray.forEach(function(moleculeObject){
-			userAnswer.push(parseInt(moleculeObject.currentNumber));
+			userAnswer.push(parseCoefficient(moleculeObject.currentNumber));
 		});
 
 		// Find lowest number to calculate the lowest ratio
