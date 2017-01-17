@@ -97,7 +97,12 @@ Reaction.prototype.displayReactant = function(input, moleculeID) {
 	// p5 input executes the function when the input changes
 	input.input(function() {
 		that[moleculeID].drawNow = true;
-		that[moleculeID].currentNumber = this.value();
+		// If user leaves input blank, still draw one of the molecule
+		if (this.value() === "") {
+			that[moleculeID].currentNumber = 1;
+		} else {
+			that[moleculeID].currentNumber = this.value();
+		}
 	});
 };
 
@@ -284,13 +289,6 @@ var sketchReaction = function(p) {
 			console.log(moleculeObject.currentNumber);
 			// if user submits nothing as coefficient, submit 1
 			userAnswer.push(parseCoefficient(moleculeObject.currentNumber));
-			/*
-			if (moleculeObject.currentNumber === "") {
-				console.log("blank string");
-				userAnswer.push(1);
-			} else {
-				userAnswer.push(parseInt(moleculeObject.currentNumber));
-			}*/
 		});
 		that.currentReaction.productsArray.forEach(function(moleculeObject){
 			userAnswer.push(parseCoefficient(moleculeObject.currentNumber));
